@@ -9,6 +9,7 @@ import {
   TableRow,
 } from "@heroui/react";
 import { useMemo, useState } from "react";
+import { Link } from "react-router";
 import { ProductDeleteModal } from "./ProductDeleteModal";
 
 export function ProductTable({ products }) {
@@ -39,7 +40,11 @@ export function ProductTable({ products }) {
         </TableHeader>
         <TableBody>
           {items.map((product) => (
-            <TableRow key={product.id}>
+            <TableRow
+              key={product.product_id}
+              as={Link}
+              href={`/product/${product.product_id}`}
+              className="cursor-pointer">
               <TableCell>
                 <img
                   className="size-12 rounded"
@@ -58,7 +63,7 @@ export function ProductTable({ products }) {
                 </Chip>
               </TableCell>
               <TableCell>
-                <ProductDeleteModal />
+                <ProductDeleteModal id={product.product_id} />
               </TableCell>
             </TableRow>
           ))}

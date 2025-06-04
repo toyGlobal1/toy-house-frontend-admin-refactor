@@ -2,11 +2,12 @@ import { Button } from "@heroui/react";
 import { useQuery } from "@tanstack/react-query";
 import { PlusIcon } from "lucide-react";
 import { ProductTable } from "../../components/product/ProductTable";
+import { PRODUCT_KEY } from "../../constants/query-key";
 import { getAllProducts } from "../../service/product.service";
 
 export default function ProductPage() {
   const { data, isFetching } = useQuery({
-    queryKey: ["products"],
+    queryKey: [PRODUCT_KEY],
     queryFn: getAllProducts,
   });
 
