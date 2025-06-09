@@ -4,10 +4,10 @@ import DashboardSidebar from "./DashboardSidebar";
 
 export default function DashboardLayout() {
   return (
-    <div className="flex h-screen">
+    <div className="flex">
       <ToastProvider />
       <DashboardSidebar />
-      <main className="flex-1 p-4">
+      <main className="max-h-screen flex-1 overflow-y-auto p-4">
         <Outlet />
       </main>
     </div>

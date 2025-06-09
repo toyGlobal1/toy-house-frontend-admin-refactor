@@ -21,3 +21,9 @@ export const getProductDetails = async (productId) => {
     `/api/v1/open/products/get/product?product-id=${productId}&request-id=1233`
   );
 };
+
+export const getProductColors = async () => {
+  return await axiosInstance.get(
+    "/api/v1/admin/colors/get?page-number=0&page-size=10&request-id=1234"
+  );
+};

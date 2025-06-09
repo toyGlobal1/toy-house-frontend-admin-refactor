@@ -10,7 +10,7 @@ const DASHBOARD_NAV_ITEMS = [
 
 export default function DashboardSidebar() {
   return (
-    <aside className="h-screen w-[15vw] border-r-2 bg-content1 p-3">
+    <aside className="max-h-screen w-[13vw] border-r-2 bg-content1 p-3">
       <Logo className="mx-auto mb-5" />
       <nav>
         <ul className="space-y-3">
