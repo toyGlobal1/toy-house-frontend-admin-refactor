@@ -7,13 +7,30 @@ import {
   CheckboxGroup,
   Divider,
   Input,
+  Select,
   Textarea,
 } from "@heroui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQuery } from "@tanstack/react-query";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { addProductSchema } from "../../schemas/addProductSchema";
+import { getProductBrands, getProductCategories } from "../../service/product.service";
 
 export const AddProductForm = () => {
+  const { data: productCategories } = useQuery({
+    queryKey: ["categories"],
+    queryFn: getProductCategories,
+  });
+
+  const categories = productCategories?.categories || [];
+
+  const { data: brandsData } = useQuery({
+    queryKey: ["brands"],
+    queryFn: getProductBrands,
+  });
+
+  const brands = brandsData?.brands || [];
+
   const {
     handleSubmit,
     control,
@@ -36,11 +53,10 @@ export const AddProductForm = () => {
       description: "",
       return_and_refund_policy: "",
       in_the_box: "",
-      dimension_types: [], // New field to track selected dimension types
+      dimension_types: [],
     },
   });
 
-  // Watch dimension types to dynamically show/hide forms
   const selectedDimensionTypes = useWatch({
     control,
     name: "dimension_types",
@@ -187,6 +203,48 @@ export const AddProductForm = () => {
       <CardBody>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <Controller
+                control={control}
+                name="category_id"
+                render={({ field }) => (
+                  <Select
+                    {...field}
+                    label="Category"
+                    placeholder="Select category"
+                    isInvalid={!!errors.category_id}
+                    errorMessage={errors.category_id?.message}
+                    onChange={(e) => field.onChange(e.target.value)}
+                    items={categories.map((category) => ({
+                      label: category.name,
+                      value: category.id,
+                    }))}
+                    isRequired
+                  />
+                )}
+              />
+
+              <Controller
+                control={control}
+                name="brand_id"
+                render={({ field }) => (
+                  <Select
+                    {...field}
+                    label="Brand"
+                    placeholder="Select brand"
+                    isInvalid={!!errors.brand_id}
+                    errorMessage={errors.brand_id?.message}
+                    onChange={(e) => field.onChange(e.target.value)}
+                    items={brands.map((brand) => ({
+                      label: brand.name,
+                      value: brand.id,
+                    }))}
+                    isRequired
+                  />
+                )}
+              />
+            </div>
+
             <Controller
               control={control}
               name="name"
@@ -201,42 +259,6 @@ export const AddProductForm = () => {
                 />
               )}
             />
-
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <Controller
-                control={control}
-                name="category_id"
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    type="number"
-                    label="Category ID"
-                    placeholder="Enter category ID"
-                    isInvalid={!!errors.category_id}
-                    errorMessage={errors.category_id?.message}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
-                    isRequired
-                  />
-                )}
-              />
-
-              <Controller
-                control={control}
-                name="brand_id"
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    type="number"
-                    label="Brand ID"
-                    placeholder="Enter brand ID"
-                    isInvalid={!!errors.brand_id}
-                    errorMessage={errors.brand_id?.message}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
-                    isRequired
-                  />
-                )}
-              />
-            </div>
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <Controller
