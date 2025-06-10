@@ -8,6 +8,7 @@ import {
   Divider,
   Input,
   Select,
+  SelectItem,
   Textarea,
 } from "@heroui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,16 +22,12 @@ export const AddProductForm = () => {
     queryKey: ["categories"],
     queryFn: getProductCategories,
   });
-
-  const categories = productCategories?.categories || [];
-
+  console.log(productCategories);
   const { data: brandsData } = useQuery({
     queryKey: ["brands"],
     queryFn: getProductBrands,
   });
-
-  const brands = brandsData?.brands || [];
-
+  console.log(brandsData);
   const {
     handleSubmit,
     control,
@@ -211,16 +208,23 @@ export const AddProductForm = () => {
                   <Select
                     {...field}
                     label="Category"
-                    placeholder="Select category"
+                    placeholder={
+                      !productCategories
+                        ? "Loading categories..."
+                        : productCategories.categories.length === 0
+                          ? "No categories"
+                          : "Select category"
+                    }
                     isInvalid={!!errors.category_id}
                     errorMessage={errors.category_id?.message}
-                    onChange={(e) => field.onChange(e.target.value)}
-                    items={categories.map((category) => ({
-                      label: category.name,
-                      value: category.id,
-                    }))}
+                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    items={productCategories?.categories || []}
                     isRequired
-                  />
+                    disabled={!productCategories}>
+                    {(category) => (
+                      <SelectItem key={category.category_id}>{category.name}</SelectItem>
+                    )}
+                  </Select>
                 )}
               />
 
@@ -231,16 +235,21 @@ export const AddProductForm = () => {
                   <Select
                     {...field}
                     label="Brand"
-                    placeholder="Select brand"
+                    placeholder={
+                      !brandsData
+                        ? "Loading brands..."
+                        : brandsData.brands.length === 0
+                          ? "No brands"
+                          : "Select brand"
+                    }
                     isInvalid={!!errors.brand_id}
                     errorMessage={errors.brand_id?.message}
-                    onChange={(e) => field.onChange(e.target.value)}
-                    items={brands.map((brand) => ({
-                      label: brand.name,
-                      value: brand.id,
-                    }))}
+                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    items={brandsData?.brands || []}
                     isRequired
-                  />
+                    disabled={!brandsData}>
+                    {(brand) => <SelectItem key={brand.brand_id}>{brand.name}</SelectItem>}
+                  </Select>
                 )}
               />
             </div>

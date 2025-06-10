@@ -8,12 +8,10 @@ export const getAllProducts = async () => {
 
 export const getProductCategories = async () => {
   return await axiosInstance.get(
-    "api/v1/open/categories/get/all?page-number=1&page-size=1000&request-id=1212112"
+    "api/v1/open/categories/get/all?page=0&size=1000&request-id=12341234"
   );
 };
 
 export const getProductBrands = async () => {
-  return await axiosInstance.get(
-    "api/v1/open/brands/get/all?page-number=1&page-size=1000&request-id=1212112"
-  );
+  return await axiosInstance.get("api/v1/open/brands/get/all?page=0&size=1000&request-id=12341234");
 };
