@@ -1,11 +1,16 @@
-import { Card, CardBody, CardHeader, cn, Radio, RadioGroup, Spinner } from "@heroui/react";
-import { useQueries } from "@tanstack/react-query";
+import { Card, CardBody, CardHeader, cn, Radio, RadioGroup } from "@heroui/react";
+import { useSuspenseQueries } from "@tanstack/react-query";
 import { useState } from "react";
 import { useParams } from "react-router";
+import { AddInventoryModal } from "../../components/product/AddInventoryModal";
 import { InventoryTable } from "../../components/product/InventoryTable";
-import { PRODUCT_INVENTORY_KEY, PRODUCT_KEY } from "../../constants/query-key";
+import { PRODUCT_COLOR_KEY, PRODUCT_INVENTORY_KEY, PRODUCT_KEY } from "../../constants/query-key";
 import { ProductDimensionEnum } from "../../enums/product.enum";
-import { getProductDetails, getProductInventories } from "../../service/product.service";
+import {
+  getProductColors,
+  getProductDetails,
+  getProductInventories,
+} from "../../service/product.service";
 
 const cardStyles = {
   card: "divide-y-1 divide-default rounded-lg",
@@ -15,25 +20,17 @@ const cardStyles = {
 
 export default function ProductInventoryPage() {
   const { id } = useParams();
-  const [
-    { data: productData, isFetching: isProductFetching },
-    { data: productInventories, isFetching: isInventoryFetching },
-  ] = useQueries({
+  const [{ data: productData }, { data: productInventories }] = useSuspenseQueries({
     queries: [
       { queryKey: [PRODUCT_KEY, id], queryFn: () => getProductDetails(id) },
       { queryKey: [PRODUCT_INVENTORY_KEY, id], queryFn: () => getProductInventories(id) },
+      { queryKey: [PRODUCT_COLOR_KEY], queryFn: getProductColors },
     ],
   });
 
-  console.log(productData, productInventories);
   const inventories = productInventories?.inventories || [];
-  if (isProductFetching || isInventoryFetching) {
-    return (
-      <div className="flex items-center justify-center">
-        <Spinner label="Loading product details..." />
-      </div>
-    );
-  }
+
+  console.log(inventories);
 
   return (
     <div>
@@ -90,7 +87,11 @@ export default function ProductInventoryPage() {
           </CardBody>
         </Card>
       </div>
-      <h2 className="my-5 text-center text-2xl font-semibold">Inventories</h2>
+      <div className="flex items-center justify-center gap-5">
+        <h2 className="my-5 text-center text-2xl font-semibold">Inventories</h2>
+        <AddInventoryModal />
+      </div>
+
       <InventoryTable inventories={inventories} />
     </div>
   );

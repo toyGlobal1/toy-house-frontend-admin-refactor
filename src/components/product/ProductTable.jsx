@@ -39,7 +39,7 @@ export function ProductTable({ products }) {
 
   return (
     <>
-      <Table isStriped aria-label="All Products Table" className="max-h-[80vh]">
+      <Table isStriped aria-label="All Products Table" className="">
         <TableHeader columns={columns}>
           {(column) => (
             <TableColumn key={column.id} align={column.id === "actions" ? "center" : "start"}>

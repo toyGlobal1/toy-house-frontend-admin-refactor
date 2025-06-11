@@ -1,8 +1,14 @@
-import { Button } from "@heroui/react";
-import { AlertCircleIcon, ImageIcon, UploadIcon, XIcon } from "lucide-react";
+import { Button, cn } from "@heroui/react";
+import { AlertCircleIcon, ImageIcon, TrashIcon, UploadIcon, XIcon } from "lucide-react";
+import { useEffect } from "react";
 import { useFileUpload } from "../../hooks/use-file-upload";
 
-export function FileUploadGallery({ initialFiles }) {
+export function InventoryFileUploadGallery({
+  initialFiles,
+  onChangeDisplayImage,
+  onFileDelete,
+  onFileChange,
+}) {
   const maxSizeMB = 5;
   const maxSize = maxSizeMB * 1024 * 1024; // 5MB default
   const maxFiles = 6;
@@ -17,6 +23,7 @@ export function FileUploadGallery({ initialFiles }) {
       openFileDialog,
       removeFile,
       getInputProps,
+      handleDisplayImageChange,
     },
   ] = useFileUpload({
     accept: "image/svg+xml,image/png,image/jpeg,image/jpg,image/gif",
@@ -25,6 +32,24 @@ export function FileUploadGallery({ initialFiles }) {
     maxFiles,
     initialFiles,
   });
+
+  const handleSetDisplayImage = (file) => {
+    handleDisplayImageChange(file.id);
+    onChangeDisplayImage(file.id);
+  };
+
+  const handleRemoveFile = (file) => {
+    if (!(file.file instanceof File)) {
+      onFileDelete(file.id);
+    }
+    removeFile(file.id);
+  };
+
+  useEffect(() => {
+    if (files.length > 0) {
+      onFileChange(files);
+    }
+  }, [files, onFileChange]);
 
   return (
     <div className="flex flex-col gap-2">
@@ -54,17 +79,41 @@ export function FileUploadGallery({ initialFiles }) {
 
             <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
               {files.map((file) => (
-                <div key={file.id} className="bg-accent relative aspect-square rounded-md">
+                <div key={file.id} className="bg-accent group relative aspect-square rounded-md">
                   <img
                     src={file.preview}
                     alt={file.file.name}
                     className="size-full rounded-[inherit] border object-cover"
                   />
+                  {file.isDisplayImage || (
+                    <button
+                      onClick={() => handleSetDisplayImage(file)}
+                      className="absolute bottom-1 left-1/2 hidden -translate-x-1/2 items-center justify-center rounded-sm bg-primary p-0.5 text-xs text-primary-foreground group-hover:inline-flex"
+                      aria-label="Set display image">
+                      Set display image
+                    </button>
+                  )}
+                  {file.isDisplayImage && (
+                    <div
+                      className="absolute left-1 top-1 inline-flex items-center justify-center rounded-sm bg-default p-0.5 text-xs text-default-foreground"
+                      aria-label="Set display image">
+                      Display image
+                    </div>
+                  )}
+
                   <button
-                    onClick={() => removeFile(file.id)}
-                    className="absolute -right-2 -top-2 inline-flex size-6 items-center justify-center rounded-full border-2 border-background bg-default shadow-none focus-visible:border-background"
+                    onClick={() => handleRemoveFile(file)}
+                    disabled={file.isDisplayImage}
+                    className={cn(
+                      "absolute -right-2 -top-2 inline-flex size-6 items-center justify-center rounded-full border-2 border-background shadow-none focus-visible:border-background",
+                      file.file instanceof File ? "bg-default" : "bg-danger text-danger-foreground"
+                    )}
                     aria-label="Remove image">
-                    <XIcon className="size-3.5" />
+                    {file.file instanceof File ? (
+                      <XIcon className="size-3.5" />
+                    ) : (
+                      <TrashIcon className="size-3.5" />
+                    )}
                   </button>
                 </div>
               ))}

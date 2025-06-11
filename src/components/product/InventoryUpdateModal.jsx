@@ -8,40 +8,18 @@ import {
   NumberInput,
   Select,
   SelectItem,
-  Switch,
   useDisclosure,
 } from "@heroui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { SquarePenIcon } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
-import { PRODUCT_COLOR_KEY, PRODUCT_KEY } from "../../constants/query-key";
-import { deleteProduct, getProductColors } from "../../service/product.service";
-import { productUpdateZodSchema } from "../../validations/product.schema";
+import { PRODUCT_COLOR_KEY, PRODUCT_INVENTORY_KEY } from "../../constants/query-key";
+import { getProductColors, updateProductInventory } from "../../service/product.service";
+import { inventoryUpdateZodSchema } from "../../validations/product.schema";
 
 export function InventoryUpdateModal({ inventory }) {
-  const queryClient = useQueryClient();
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
-
-  const { mutateAsync, isPending } = useMutation({
-    mutationFn: deleteProduct,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [PRODUCT_KEY] });
-      onClose();
-      addToast({
-        title: "Success",
-        description: "Product has been deleted successfully",
-        color: "success",
-      });
-    },
-    onError: () => {
-      addToast({
-        title: "Error",
-        description: "Failed to delete product",
-        color: "danger",
-      });
-    },
-  });
 
   return (
     <>
@@ -53,7 +31,7 @@ export function InventoryUpdateModal({ inventory }) {
           <ModalHeader className="flex flex-col items-center gap-1">
             Edit Product Inventory
           </ModalHeader>
-          <ModalBody>
+          <ModalBody className="pb-4">
             <InventoryUpdateForm inventory={inventory} onClose={onClose} />
           </ModalBody>
         </ModalContent>
@@ -63,15 +41,18 @@ export function InventoryUpdateModal({ inventory }) {
 }
 
 function InventoryUpdateForm({ inventory, onClose }) {
+  const queryClient = useQueryClient();
   const { data } = useSuspenseQuery({ queryKey: [PRODUCT_COLOR_KEY], queryFn: getProductColors });
-  const colors = data.colors || [];
+  const colors = data?.colors;
 
-  // const selectedColor = colors.find((color) => color.color_name === inventory.color);
+  const selectedColor = colors.find(
+    (i) => i.color_name.toLowerCase() === inventory.color.toLowerCase()
+  );
 
   const { control, handleSubmit, formState } = useForm({
-    resolver: zodResolver(productUpdateZodSchema),
+    resolver: zodResolver(inventoryUpdateZodSchema),
     values: {
-      // colorId: selectedColor.color_id || "",
+      color_id: selectedColor?.color_id || "",
       quantity: inventory.quantity || 0,
       base_price: inventory.base_price || 0,
       selling_price: inventory.selling_price || 0,
@@ -81,10 +62,37 @@ function InventoryUpdateForm({ inventory, onClose }) {
     },
   });
 
-  console.log(inventory);
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: updateProductInventory,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [PRODUCT_INVENTORY_KEY] });
+      onClose();
+      addToast({
+        title: "Success",
+        description: "Product inventory has been updated successfully",
+        color: "success",
+      });
+    },
+    onError: () => {
+      addToast({
+        title: "Error",
+        description: "Failed to update product inventory",
+        color: "danger",
+      });
+    },
+  });
 
   const onSubmit = async (data) => {
-    console.log("Form submitted with data:", data);
+    const payload = {
+      product_inventory_id: inventory.inventory_id,
+      inventory: {
+        ...data,
+        is_featured: inventory.is_featured,
+        mark_unavailable: inventory.mark_unavailable,
+      },
+    };
+    console.log("Form submitted with data:", payload);
+    await mutateAsync(payload);
   };
 
   return (
@@ -94,16 +102,21 @@ function InventoryUpdateForm({ inventory, onClose }) {
         name="color_id"
         render={({ field, fieldState: { error, invalid } }) => (
           <Select
-            {...field}
-            label="Sport"
+            value={field.value}
+            onChange={(e) => {
+              const fieldValue = e.target.value;
+              field.onChange(Number(fieldValue));
+            }}
+            defaultSelectedKeys={[field.value.toString()]}
+            label="Color"
             placeholder="Select the color"
-            labelPlacement="outside"
-            defaultSelectedKeys={[field.value]}
             variant="bordered"
             isInvalid={invalid}
             errorMessage={error?.message}>
             {colors?.map((item) => (
-              <SelectItem key={item.color_id}>{item.color_name}</SelectItem>
+              <SelectItem key={item.color_id} value={item.color_id}>
+                {item.color_name}
+              </SelectItem>
             ))}
           </Select>
         )}
@@ -113,7 +126,8 @@ function InventoryUpdateForm({ inventory, onClose }) {
         name="quantity"
         render={({ field, fieldState: { error, invalid } }) => (
           <NumberInput
-            {...field}
+            value={field.value}
+            onValueChange={field.onChange}
             label="Quantity"
             placeholder="Enter quantity"
             variant="bordered"
@@ -127,7 +141,8 @@ function InventoryUpdateForm({ inventory, onClose }) {
         name="base_price"
         render={({ field, fieldState: { error, invalid } }) => (
           <NumberInput
-            {...field}
+            value={field.value}
+            onValueChange={field.onChange}
             label="Base Price"
             placeholder="Enter base price"
             variant="bordered"
@@ -141,7 +156,8 @@ function InventoryUpdateForm({ inventory, onClose }) {
         name="selling_price"
         render={({ field, fieldState: { error, invalid } }) => (
           <NumberInput
-            {...field}
+            value={field.value}
+            onValueChange={field.onChange}
             label="Selling Price"
             placeholder="Enter selling price"
             variant="bordered"
@@ -155,7 +171,8 @@ function InventoryUpdateForm({ inventory, onClose }) {
         name="applicable_tax_percent"
         render={({ field, fieldState: { error, invalid } }) => (
           <NumberInput
-            {...field}
+            value={field.value}
+            onValueChange={field.onChange}
             label="Applicable Tax Percent"
             placeholder="Enter applicable tax percent"
             variant="bordered"
@@ -164,38 +181,7 @@ function InventoryUpdateForm({ inventory, onClose }) {
           />
         )}
       />
-      <Controller
-        control={control}
-        name="mark_unavailable"
-        render={({ field }) => (
-          <Switch
-            size="sm"
-            isSelected={field.value}
-            onValueChange={field.onChange}
-            classNames={{
-              base: "flex flex-row-reverse justify-between max-w-full",
-              label: "ms-0",
-            }}>
-            Mark Unavailable
-          </Switch>
-        )}
-      />
-      <Controller
-        control={control}
-        name="is_featured"
-        render={({ field }) => (
-          <Switch
-            size="sm"
-            isSelected={field.value}
-            onValueChange={field.onChange}
-            classNames={{
-              base: "flex flex-row-reverse justify-between max-w-full",
-              label: "ms-0",
-            }}>
-            Featured Product
-          </Switch>
-        )}
-      />
+
       <div className="!mt-6 flex justify-end gap-2">
         <Button variant="light" onPress={onClose} color="danger">
           Cancel
@@ -203,9 +189,8 @@ function InventoryUpdateForm({ inventory, onClose }) {
         <Button
           type="submit"
           color="success"
-          // isLoading={isPending}
-          // isDisabled={!formState.isValid || !formState.isDirty || isPending}
-        >
+          isLoading={isPending}
+          isDisabled={!formState.isValid || !formState.isDirty || isPending}>
           Save
         </Button>
       </div>

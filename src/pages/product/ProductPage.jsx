@@ -1,34 +1,28 @@
-import { Button, Input, Spinner } from "@heroui/react";
-import { useQuery } from "@tanstack/react-query";
+import { Button, Input } from "@heroui/react";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { PlusIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 import { ProductTable } from "../../components/product/ProductTable";
 import { PRODUCT_KEY } from "../../constants/query-key";
+import { useDebounce } from "../../hooks/useDebounce";
 import { getAllProducts } from "../../service/product.service";
 
 export default function ProductPage() {
   const [searchText, setSearchText] = useState("");
-  const { data, isFetching } = useQuery({ queryKey: [PRODUCT_KEY], queryFn: getAllProducts });
+  const { data } = useSuspenseQuery({ queryKey: [PRODUCT_KEY], queryFn: getAllProducts });
+
+  const debouncedSearchText = useDebounce(searchText, 300);
 
   const filteredProducts = useMemo(() => {
     const allProducts = data?.products || [];
-    if (searchText === "") {
+    if (debouncedSearchText === "") {
       return allProducts;
     } else {
       return allProducts.filter((product) =>
-        product.product_name.toLowerCase().includes(searchText.toLowerCase())
+        product.product_name.toLowerCase().includes(debouncedSearchText.toLowerCase())
       );
     }
-  }, [searchText, data]);
-
-  if (isFetching) {
-    return (
-      <div className="flex items-center justify-center">
-        <Spinner className="size-8" />
-        <span className="ml-2">Loading products...</span>
-      </div>
-    );
-  }
+  }, [debouncedSearchText, data]);
 
   return (
     <div>

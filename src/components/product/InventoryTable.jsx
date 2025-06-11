@@ -11,6 +11,7 @@ import {
 } from "@heroui/react";
 import { EyeIcon, TrashIcon } from "lucide-react";
 import { useMemo, useState } from "react";
+import Swal from "sweetalert2";
 import { InventoryImageModal } from "./InventoryImageModal";
 import { InventoryUpdateModal } from "./InventoryUpdateModal";
 
@@ -73,6 +74,19 @@ export function InventoryTable({ inventories }) {
     return inventories.slice(start, end);
   }, [page, inventories]);
 
+  const handleDeleteInventory = async (inventoryId) => {
+    const { isConfirmed } = await Swal.fire({
+      showCloseButton: true,
+      title: "Are you sure?",
+      text: "This action cannot be undone.",
+      icon: "question",
+      confirmButtonText: "Delete",
+    });
+    if (isConfirmed) {
+      console.log(inventoryId); // TODO: Call delete inventory API
+    }
+  };
+
   return (
     <>
       <Table
@@ -82,7 +96,7 @@ export function InventoryTable({ inventories }) {
         classNames={{ th: "py-3 bg-secondary text-secondary-foreground" }}>
         <TableHeader columns={columns}>
           {(column) => (
-            <TableColumn key={column.id} align={column.id === "actions" ? "center" : "start"}>
+            <TableColumn key={column.id} align="center">
               {column.name}
             </TableColumn>
           )}
@@ -91,7 +105,7 @@ export function InventoryTable({ inventories }) {
           {(item) => (
             <TableRow key={item.inventory_id}>
               <TableCell>
-                <InventoryImageModal initialFiles={item.images} />
+                <InventoryImageModal inventoryId={item.inventory_id} />
               </TableCell>
               <TableCell className="max-w-sm">
                 <Button isIconOnly size="sm">
@@ -127,7 +141,11 @@ export function InventoryTable({ inventories }) {
               </TableCell>
               <TableCell className="space-x-2">
                 <InventoryUpdateModal inventory={item} />
-                <Button isIconOnly size="sm" color="danger">
+                <Button
+                  isIconOnly
+                  size="sm"
+                  color="danger"
+                  onPress={() => handleDeleteInventory(item.inventory_id)}>
                   <TrashIcon className="size-4" />
                 </Button>
               </TableCell>

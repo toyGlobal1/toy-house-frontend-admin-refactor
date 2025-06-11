@@ -16,6 +16,7 @@ export const useFileUpload = (options = {}) => {
       file,
       id: file.id,
       preview: file.url,
+      isDisplayImage: file.isDisplayImage || false,
     })),
     isDragging: false,
     errors: [],
@@ -159,6 +160,7 @@ export const useFileUpload = (options = {}) => {
             file,
             id: generateUniqueId(file),
             preview: createPreview(file),
+            isDisplayImage: false, // Default to false, can be set later
           });
         }
       });
@@ -311,6 +313,24 @@ export const useFileUpload = (options = {}) => {
     [accept, multiple, handleFileChange]
   );
 
+  // Handle display image change: only update the target file, and keep rest unchanged
+  const handleDisplayImageChange = useCallback(
+    (id) => {
+      setState((prev) => {
+        const updatedFiles = prev.files.map((file) => ({
+          ...file,
+          isDisplayImage: file.id === id,
+        }));
+        onFilesChange?.(updatedFiles);
+        return {
+          ...prev,
+          files: updatedFiles,
+        };
+      });
+    },
+    [onFilesChange]
+  );
+
   return [
     state,
     {
@@ -323,6 +343,7 @@ export const useFileUpload = (options = {}) => {
       handleDragOver,
       handleDrop,
       handleFileChange,
+      handleDisplayImageChange,
       openFileDialog,
       getInputProps,
     },
