@@ -52,6 +52,7 @@ export const AddProductForm = () => {
         title: "Product added successfully",
         description: "Product added successfully",
         color: "success",
+        placement: "top-right",
       });
     },
     onError: () => {
@@ -59,6 +60,7 @@ export const AddProductForm = () => {
         title: "Failed to add product",
         description: "Failed to add product",
         color: "danger",
+        placement: "top-right",
       });
     },
   });
