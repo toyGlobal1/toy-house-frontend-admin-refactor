@@ -286,6 +286,7 @@ export const AddProductForm = () => {
               )}
             />
 
+            {/* Product Description */}
             <div className="rounded-lg border-2 border-default-200 bg-default-50">
               <CardHeader className="mb-[-15px]">
                 <span className="text-sm text-default-600">Product Description</span>
@@ -422,6 +423,7 @@ export const AddProductForm = () => {
                   )}
                 />
 
+                {/* Maximum Age */}
                 <Controller
                   control={control}
                   name="maximum_age_range"
@@ -440,6 +442,7 @@ export const AddProductForm = () => {
               </div>
             </div>
 
+            {/* Warranty Information */}
             <Controller
               control={control}
               name="warranty_info"
@@ -455,6 +458,7 @@ export const AddProductForm = () => {
               )}
             />
 
+            {/* Return and Refund Policy */}
             <Controller
               control={control}
               name="return_and_refund_policy"
