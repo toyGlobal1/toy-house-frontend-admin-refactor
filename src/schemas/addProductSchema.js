@@ -4,10 +4,8 @@ export const addProductSchema = z.object({
   category_id: z.number().min(1, "Category is required"),
   brand_id: z.number().min(1, "Brand is required"),
   name: z.string().min(1, "Product name is required"),
-  sku: z.string().min(1, "SKU is required"),
   number_of_pieces: z.number().min(1, "Number of pieces is required"),
   warranty_info: z.string().optional(),
-  summary: z.string().optional(),
   minimum_age_range: z.number().min(0, "Minimum age is required"),
   maximum_age_range: z.number().min(0, "Maximum age is required"),
   material_ids: z.array(z.number()).min(1, "At least one material is required"),
@@ -25,6 +23,7 @@ export const addProductSchema = z.object({
     )
     .min(1, "At least one dimension is required"),
   description: z.string().min(1, "Description is required"),
+  return_days: z.number(),
   return_and_refund_policy: z.string().optional(),
   in_the_box: z.string().optional(),
 });

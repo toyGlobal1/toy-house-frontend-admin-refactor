@@ -13,21 +13,38 @@ import {
 } from "@heroui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
+import Quill from "quill";
+import { useRef } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { addProductSchema } from "../../schemas/addProductSchema";
-import { getProductBrands, getProductCategories } from "../../service/product.service";
+import {
+  getProductBrands,
+  getProductCategories,
+  getProductMaterials,
+} from "../../service/product.service";
+import Editor from "../editor/Editor";
+
+const Delta = Quill.import("delta");
 
 export const AddProductForm = () => {
+  const productDescriptionRef = useRef(null);
+  const returnAndRefundPolicyRef = useRef(null);
+  const boxItemsRef = useRef(null);
   const { data: productCategories } = useQuery({
     queryKey: ["categories"],
     queryFn: getProductCategories,
   });
-  console.log(productCategories);
+
   const { data: brandsData } = useQuery({
     queryKey: ["brands"],
     queryFn: getProductBrands,
   });
-  console.log(brandsData);
+
+  const { data: materialsData } = useQuery({
+    queryKey: ["materials"],
+    queryFn: getProductMaterials,
+  });
+
   const {
     handleSubmit,
     control,
@@ -39,17 +56,16 @@ export const AddProductForm = () => {
       category_id: 1,
       brand_id: 1,
       name: "",
-      sku: "",
       number_of_pieces: 0,
       warranty_info: "",
-      summary: "",
       minimum_age_range: 0,
       maximum_age_range: 0,
       material_ids: [],
       dimensions: [],
       description: "",
+      return_days: 0,
       return_and_refund_policy: "",
-      in_the_box: "",
+      highlights: "",
       dimension_types: [],
     },
   });
@@ -200,6 +216,7 @@ export const AddProductForm = () => {
       <CardBody>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-4">
+            {/* Category and Brand */}
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <Controller
                 control={control}
@@ -254,6 +271,7 @@ export const AddProductForm = () => {
               />
             </div>
 
+            {/* Product Name */}
             <Controller
               control={control}
               name="name"
@@ -269,107 +287,28 @@ export const AddProductForm = () => {
               )}
             />
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <Controller
-                control={control}
-                name="sku"
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    label="SKU"
-                    placeholder="Enter SKU"
-                    isInvalid={!!errors.sku}
-                    errorMessage={errors.sku?.message}
-                    isRequired
-                  />
-                )}
-              />
-
-              <Controller
-                control={control}
-                name="number_of_pieces"
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    type="number"
-                    label="Number of Pieces"
-                    placeholder="Enter number of pieces"
-                    isInvalid={!!errors.number_of_pieces}
-                    errorMessage={errors.number_of_pieces?.message}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
-                    isRequired
-                  />
-                )}
-              />
-            </div>
-
-            <Controller
-              control={control}
-              name="warranty_info"
-              render={({ field }) => (
-                <Input
-                  {...field}
-                  label="Warranty Information"
-                  placeholder="Enter warranty information"
-                  isInvalid={!!errors.warranty_info}
-                  errorMessage={errors.warranty_info?.message}
+            <div className="rounded-lg border-2 border-default-200 bg-default-50">
+              <CardHeader className="mb-[-15px]">
+                <span className="text-sm text-default-600">Product Description</span>
+              </CardHeader>
+              <CardBody className="p-0">
+                <Controller
+                  control={control}
+                  name="description"
+                  render={({ field }) => (
+                    <Editor
+                      {...field}
+                      className="h-full w-full border-none shadow-none"
+                      ref={productDescriptionRef}
+                      defaultValue={field.value}
+                      onTextChange={() => {
+                        const html = productDescriptionRef.current?.root?.innerHTML;
+                        field.onChange(html);
+                      }}
+                    />
+                  )}
                 />
-              )}
-            />
-
-            <Controller
-              control={control}
-              name="summary"
-              render={({ field }) => (
-                <Textarea
-                  {...field}
-                  label="Summary"
-                  placeholder="Enter product summary"
-                  isInvalid={!!errors.summary}
-                  errorMessage={errors.summary?.message}
-                  minRows={2}
-                />
-              )}
-            />
-          </div>
-
-          <Divider />
-
-          {/* Age Range */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Age Range</h3>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <Controller
-                control={control}
-                name="minimum_age_range"
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    type="number"
-                    label="Minimum Age"
-                    placeholder="Enter minimum age"
-                    isInvalid={!!errors.minimum_age_range}
-                    errorMessage={errors.minimum_age_range?.message}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
-                  />
-                )}
-              />
-
-              <Controller
-                control={control}
-                name="maximum_age_range"
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    type="number"
-                    label="Maximum Age"
-                    placeholder="Enter maximum age"
-                    isInvalid={!!errors.maximum_age_range}
-                    errorMessage={errors.maximum_age_range?.message}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
-                  />
-                )}
-              />
+              </CardBody>
             </div>
           </div>
 
@@ -382,15 +321,20 @@ export const AddProductForm = () => {
               control={control}
               name="material_ids"
               render={({ field }) => (
-                <Input
-                  label="Material IDs"
-                  placeholder="Enter material IDs (comma separated)"
+                <Select
+                  {...field}
+                  label="Materials"
+                  placeholder="Select materials"
                   isInvalid={!!errors.material_ids}
                   errorMessage={errors.material_ids?.message}
-                  onChange={(e) =>
-                    field.onChange(e.target.value.split(",").map(Number).filter(Boolean))
-                  }
-                />
+                  items={materialsData?.materials || []}
+                  selectionMode="multiple"
+                  onSelectionChange={(e) => field.onChange(e.target.value)}
+                  disabled={!materialsData}>
+                  {(material) => (
+                    <SelectItem key={material.material_id}>{material.name}</SelectItem>
+                  )}
+                </Select>
               )}
             />
           </div>
@@ -414,10 +358,10 @@ export const AddProductForm = () => {
                     orientation="horizontal"
                     className="gap-4">
                     <Checkbox value="BOX" color="primary">
-                      Box Dimensions
+                      Box
                     </Checkbox>
                     <Checkbox value="PRODUCT" color="primary">
-                      Product Dimensions
+                      Product
                     </Checkbox>
                   </CheckboxGroup>
                 )}
@@ -438,54 +382,150 @@ export const AddProductForm = () => {
 
           <Divider />
 
+          {/* Additional Information */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Additional Information</h3>
+
+            {/* Number of Pieces */}
+            <Controller
+              control={control}
+              name="number_of_pieces"
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  type="number"
+                  label="Number of Pieces"
+                  placeholder="Enter number of pieces"
+                  isInvalid={!!errors.number_of_pieces}
+                  errorMessage={errors.number_of_pieces?.message}
+                  onChange={(e) => field.onChange(Number(e.target.value))}
+                  isRequired
+                />
+              )}
+            />
+
+            {/* Age Range */}
+            <div className="space-y-4">
+              {/* <h3 className="text-lg font-semibold">Age Range</h3> */}
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <Controller
+                  control={control}
+                  name="minimum_age_range"
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      type="number"
+                      label="Minimum Age"
+                      placeholder="Enter minimum age"
+                      isInvalid={!!errors.minimum_age_range}
+                      errorMessage={errors.minimum_age_range?.message}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
+                  )}
+                />
+
+                <Controller
+                  control={control}
+                  name="maximum_age_range"
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      type="number"
+                      label="Maximum Age"
+                      placeholder="Enter maximum age"
+                      isInvalid={!!errors.maximum_age_range}
+                      errorMessage={errors.maximum_age_range?.message}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
+                  )}
+                />
+              </div>
+            </div>
+
+            <Controller
+              control={control}
+              name="warranty_info"
+              render={({ field }) => (
+                <Textarea
+                  {...field}
+                  label="Warranty Information"
+                  placeholder="Enter warranty information"
+                  isInvalid={!!errors.warranty_info}
+                  errorMessage={errors.warranty_info?.message}
+                  minRows={3}
+                />
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="return_days"
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  label="Return Days"
+                  placeholder="Enter return days"
+                  isInvalid={!!errors.return_days}
+                  errorMessage={errors.return_days?.message}
+                  type="number"
+                />
+              )}
+            />
+          </div>
+
+          <Divider />
+
           {/* Detailed Information */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Detailed Information</h3>
 
-            <Controller
-              control={control}
-              name="description"
-              render={({ field }) => (
-                <Textarea
-                  {...field}
-                  label="Description"
-                  placeholder="Enter detailed product description"
-                  isInvalid={!!errors.description}
-                  errorMessage={errors.description?.message}
-                  minRows={4}
+            <div className="rounded-lg border-2 border-default-200 bg-default-50">
+              <CardHeader className="mb-[-15px]">
+                <span className="text-md font-semibold">Box Items</span>
+              </CardHeader>
+              <CardBody className="min-h-[200px]">
+                <Controller
+                  control={control}
+                  name="description"
+                  render={({ field }) => (
+                    <Editor
+                      {...field}
+                      className="h-full w-full border-none shadow-none"
+                      ref={boxItemsRef}
+                      defaultValue={field.value}
+                      onTextChange={() => {
+                        const html = boxItemsRef.current?.root?.innerHTML;
+                        field.onChange(html);
+                      }}
+                    />
+                  )}
                 />
-              )}
-            />
+              </CardBody>
+            </div>
 
-            <Controller
-              control={control}
-              name="return_and_refund_policy"
-              render={({ field }) => (
-                <Textarea
-                  {...field}
-                  label="Return and Refund Policy"
-                  placeholder="Enter return and refund policy"
-                  isInvalid={!!errors.return_and_refund_policy}
-                  errorMessage={errors.return_and_refund_policy?.message}
-                  minRows={3}
+            <div className="rounded-lg border-2 border-default-200 bg-default-50">
+              <CardHeader className="mb-[-15px]">
+                <span className="text-md font-semibold">Highlights</span>
+              </CardHeader>
+              <CardBody className="min-h-[200px]">
+                <Controller
+                  control={control}
+                  name="description"
+                  render={({ field }) => (
+                    <Editor
+                      {...field}
+                      className="h-full w-full border-none shadow-none"
+                      ref={boxItemsRef}
+                      defaultValue={field.value}
+                      onTextChange={() => {
+                        const html = boxItemsRef.current?.root?.innerHTML;
+                        field.onChange(html);
+                      }}
+                    />
+                  )}
                 />
-              )}
-            />
-
-            <Controller
-              control={control}
-              name="in_the_box"
-              render={({ field }) => (
-                <Textarea
-                  {...field}
-                  label="In the Box"
-                  placeholder="List what's included in the box"
-                  isInvalid={!!errors.in_the_box}
-                  errorMessage={errors.in_the_box?.message}
-                  minRows={3}
-                />
-              )}
-            />
+              </CardBody>
+            </div>
           </div>
 
           {/* Submit Button */}

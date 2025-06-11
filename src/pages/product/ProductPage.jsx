@@ -27,7 +27,7 @@ export default function ProductPage() {
       <h1 className="mb-3 text-center text-xl font-bold">All Products</h1>
       <div className="mb-3 flex items-center justify-between">
         <p>Total Products: {data.total_products}</p>
-        <Button onClick={() => navigate("/product/add")}>
+        <Button onPress={() => navigate("/product/add")}>
           <PlusIcon className="size-4" />
           Add Product
         </Button>
