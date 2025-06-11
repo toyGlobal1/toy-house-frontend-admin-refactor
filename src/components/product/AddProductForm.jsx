@@ -10,13 +10,15 @@ import {
   Select,
   SelectItem,
   Textarea,
+  addToast,
 } from "@heroui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRef } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { addProductSchema } from "../../schemas/addProductSchema";
 import {
+  addProduct,
   getProductBrands,
   getProductCategories,
   getProductMaterials,
@@ -41,6 +43,24 @@ export const AddProductForm = () => {
   const { data: materialsData } = useQuery({
     queryKey: ["materials"],
     queryFn: getProductMaterials,
+  });
+
+  const { mutate: addProductMutation } = useMutation({
+    mutationFn: addProduct,
+    onSuccess: () => {
+      addToast({
+        title: "Product added successfully",
+        description: "Product added successfully",
+        color: "success",
+      });
+    },
+    onError: () => {
+      addToast({
+        title: "Failed to add product",
+        description: "Failed to add product",
+        color: "danger",
+      });
+    },
   });
 
   const {
@@ -93,7 +113,7 @@ export const AddProductForm = () => {
 
   const onSubmit = (data) => {
     const product = { product: { ...data } };
-    console.log(product);
+    addProductMutation(product);
   };
 
   const renderDimensionForm = (type, index) => (
