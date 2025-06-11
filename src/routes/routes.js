@@ -1,9 +1,9 @@
 import { createBrowserRouter } from "react-router";
 import DashboardLayout from "../layouts/DashboardLayout";
+import AddProductPage from "../pages/AddProductPage";
 import DashboardPage from "../pages/DashboardPage";
 import OrderPage from "../pages/OrderPage";
 import ProductPage from "../pages/product/ProductPage";
-import AddProductPage from "../pages/AddProductPage";
 
 export const router = createBrowserRouter([
   {
