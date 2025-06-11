@@ -13,7 +13,6 @@ import {
 } from "@heroui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
-import Quill from "quill";
 import { useRef } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { addProductSchema } from "../../schemas/addProductSchema";
@@ -24,12 +23,11 @@ import {
 } from "../../service/product.service";
 import Editor from "../editor/Editor";
 
-const Delta = Quill.import("delta");
-
 export const AddProductForm = () => {
   const productDescriptionRef = useRef(null);
-  const returnAndRefundPolicyRef = useRef(null);
   const boxItemsRef = useRef(null);
+  const highlightsRef = useRef(null);
+
   const { data: productCategories } = useQuery({
     queryKey: ["categories"],
     queryFn: getProductCategories,
@@ -63,10 +61,10 @@ export const AddProductForm = () => {
       material_ids: [],
       dimensions: [],
       description: "",
-      return_days: 0,
       return_and_refund_policy: "",
-      highlights: "",
       dimension_types: [],
+      summary: "",
+      in_the_box: "",
     },
   });
 
@@ -94,7 +92,8 @@ export const AddProductForm = () => {
   };
 
   const onSubmit = (data) => {
-    console.log(data);
+    const product = { product: { ...data } };
+    console.log(product);
   };
 
   const renderDimensionForm = (type, index) => (
@@ -399,7 +398,6 @@ export const AddProductForm = () => {
                   isInvalid={!!errors.number_of_pieces}
                   errorMessage={errors.number_of_pieces?.message}
                   onChange={(e) => field.onChange(Number(e.target.value))}
-                  isRequired
                 />
               )}
             />
@@ -459,15 +457,14 @@ export const AddProductForm = () => {
 
             <Controller
               control={control}
-              name="return_days"
+              name="return_and_refund_policy"
               render={({ field }) => (
                 <Input
                   {...field}
                   label="Return Days"
-                  placeholder="Enter return days"
-                  isInvalid={!!errors.return_days}
-                  errorMessage={errors.return_days?.message}
-                  type="number"
+                  placeholder="Enter Return and Refund Policy"
+                  isInvalid={!!errors.return_and_refund_policy}
+                  errorMessage={errors.return_and_refund_policy?.message}
                 />
               )}
             />
@@ -486,7 +483,7 @@ export const AddProductForm = () => {
               <CardBody className="min-h-[200px]">
                 <Controller
                   control={control}
-                  name="description"
+                  name="in_the_box"
                   render={({ field }) => (
                     <Editor
                       {...field}
@@ -510,15 +507,15 @@ export const AddProductForm = () => {
               <CardBody className="min-h-[200px]">
                 <Controller
                   control={control}
-                  name="description"
+                  name="summary"
                   render={({ field }) => (
                     <Editor
                       {...field}
                       className="h-full w-full border-none shadow-none"
-                      ref={boxItemsRef}
+                      ref={highlightsRef}
                       defaultValue={field.value}
                       onTextChange={() => {
-                        const html = boxItemsRef.current?.root?.innerHTML;
+                        const html = highlightsRef.current?.root?.innerHTML;
                         field.onChange(html);
                       }}
                     />
