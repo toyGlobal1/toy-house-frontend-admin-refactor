@@ -2,12 +2,14 @@ import { Button, Input } from "@heroui/react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { PlusIcon } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router";
 import { ProductTable } from "../../components/product/ProductTable";
 import { PRODUCT_KEY } from "../../constants/query-key";
 import { useDebounce } from "../../hooks/useDebounce";
 import { getAllProducts } from "../../service/product.service";
 
 export default function ProductPage() {
+  const navigate = useNavigate();
   const [searchText, setSearchText] = useState("");
   const { data } = useSuspenseQuery({ queryKey: [PRODUCT_KEY], queryFn: getAllProducts });
 
@@ -43,7 +45,7 @@ export default function ProductPage() {
             />
           </div>
           <Button size="sm">
-            <PlusIcon className="size-4" />
+            <PlusIcon className="size-4" onPress={() => navigate("/product/add")} />
             Add Product
           </Button>
         </div>

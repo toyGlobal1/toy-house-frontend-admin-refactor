@@ -67,3 +67,23 @@ export const deleteProductInventoryImage = async (imageId) => {
     `/api/v1/admin/product/inventory/delete/image?image-id=${imageId}&request-id=1234`
   );
 };
+
+export const getProductCategories = async () => {
+  return await axiosInstance.get(
+    "api/v1/open/categories/get/all?page=0&size=1000&request-id=12341234"
+  );
+};
+
+export const getProductBrands = async () => {
+  return await axiosInstance.get("api/v1/open/brands/get/all?page=0&size=1000&request-id=12341234");
+};
+
+export const getProductMaterials = async () => {
+  return await axiosInstance.get(
+    "/api/v1/admin/materials/get?page-number=0&page-size=1000&request-id=11223344"
+  );
+};
+
+export const addProduct = async (product) => {
+  return await axiosInstance.post("/api/v1/open/products/add/product?request-id=12341234", product);
+};
