@@ -38,7 +38,7 @@ export function AddInventoryModal() {
       <Modal size="xl" isOpen={isOpen} onOpenChange={onOpenChange}>
         <ModalContent>
           <ModalHeader className="flex justify-center">Add New Inventory</ModalHeader>
-          <ModalBody className="min-h-[600px] pb-4">
+          <ModalBody className="min-h-[500px] pb-4">
             <AddInventoryForm productId={productId} onClose={onClose} />
           </ModalBody>
         </ModalContent>
@@ -119,15 +119,15 @@ function AddInventoryForm({ productId, onClose }) {
         <div className="">
           <InventoryFileUploadGallery initialFiles={[]} onFileChange={setFiles} />
         </div>
-        <div className="mt-10 flex justify-end">
-          <Button onPress={() => setSelectedKey("videos")}>Next</Button>
-        </div>
+        <Button className="absolute bottom-8 right-8" onPress={() => setSelectedKey("videos")}>
+          Next
+        </Button>
       </Tab>
       <Tab key="videos" title="Videos">
         <div className="">Coming Soon...</div>
-        <div className="mt-10 flex justify-end">
-          <Button onPress={() => setSelectedKey("basic-info")}>Next</Button>
-        </div>
+        <Button className="absolute bottom-8 right-8" onPress={() => setSelectedKey("basic-info")}>
+          Next
+        </Button>
       </Tab>
       <Tab key="basic-info" title="Basic Info">
         <form className="space-y-3" onSubmit={handleSubmit(onSubmit)}>
