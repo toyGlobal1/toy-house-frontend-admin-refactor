@@ -16,7 +16,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRef } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
-
 import {
   addProduct,
   getProductBrands,

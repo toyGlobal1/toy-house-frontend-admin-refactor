@@ -18,9 +18,10 @@ import { PlusCircleIcon } from "lucide-react";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useParams } from "react-router";
-import { PRODUCT_COLOR_KEY, PRODUCT_INVENTORY_KEY } from "../../constants/query-key";
+import { COLOR_KEY, PRODUCT_INVENTORY_KEY } from "../../constants/query-key";
+import { getAllColors } from "../../service/color.service";
 import { uploadImageToIMG_BB } from "../../service/image.service";
-import { addProductInventory, getProductColors } from "../../service/product.service";
+import { addProductInventory } from "../../service/product.service";
 import { addInventoryZodSchema } from "../../validations/product.schema";
 import { InventoryFileUploadGallery } from "../ui/InventoryFileUploadGallery";
 import { YouTubeEmbed } from "../ui/YouTubeEmbed";
@@ -53,7 +54,7 @@ function AddInventoryForm({ productId, onClose }) {
   const [files, setFiles] = useState([]);
 
   const queryClient = useQueryClient();
-  const { data } = useSuspenseQuery({ queryKey: [PRODUCT_COLOR_KEY], queryFn: getProductColors });
+  const { data } = useSuspenseQuery({ queryKey: [COLOR_KEY], queryFn: getAllColors });
   const colors = data?.colors;
 
   const getUploadedImages = async () => {

@@ -4,13 +4,10 @@ import { useState } from "react";
 import { useParams } from "react-router";
 import { AddInventoryModal } from "../../components/product/AddInventoryModal";
 import { InventoryTable } from "../../components/product/InventoryTable";
-import { PRODUCT_COLOR_KEY, PRODUCT_INVENTORY_KEY, PRODUCT_KEY } from "../../constants/query-key";
+import { COLOR_KEY, PRODUCT_INVENTORY_KEY, PRODUCT_KEY } from "../../constants/query-key";
 import { ProductDimensionEnum } from "../../enums/product.enum";
-import {
-  getProductColors,
-  getProductDetails,
-  getProductInventories,
-} from "../../service/product.service";
+import { getAllColors } from "../../service/color.service";
+import { getProductDetails, getProductInventories } from "../../service/product.service";
 
 const cardStyles = {
   card: "divide-y-1 divide-default rounded-lg",
@@ -24,7 +21,7 @@ export default function ProductInventoryPage() {
     queries: [
       { queryKey: [PRODUCT_KEY, id], queryFn: () => getProductDetails(id) },
       { queryKey: [PRODUCT_INVENTORY_KEY, id], queryFn: () => getProductInventories(id) },
-      { queryKey: [PRODUCT_COLOR_KEY], queryFn: getProductColors },
+      { queryKey: [COLOR_KEY], queryFn: getAllColors },
     ],
   });
 
