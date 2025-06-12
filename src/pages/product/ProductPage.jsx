@@ -1,38 +1,56 @@
-import { Button } from "@heroui/react";
-import { useQuery } from "@tanstack/react-query";
+import { Button, Input } from "@heroui/react";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { PlusIcon } from "lucide-react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import { ProductTable } from "../../components/product/ProductTable";
+import { PRODUCT_KEY } from "../../constants/query-key";
+import { useDebounce } from "../../hooks/useDebounce";
 import { getAllProducts } from "../../service/product.service";
 
 export default function ProductPage() {
   const navigate = useNavigate();
-  const { data, isFetching } = useQuery({
-    queryKey: ["products"],
-    queryFn: getAllProducts,
-  });
+  const [searchText, setSearchText] = useState("");
+  const { data } = useSuspenseQuery({ queryKey: [PRODUCT_KEY], queryFn: getAllProducts });
 
-  const products = data?.products || [];
+  const debouncedSearchText = useDebounce(searchText, 300);
 
-  if (isFetching) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <p>Loading products...</p>
-      </div>
-    );
-  }
+  const filteredProducts = useMemo(() => {
+    const allProducts = data?.products || [];
+    if (debouncedSearchText === "") {
+      return allProducts;
+    } else {
+      return allProducts.filter((product) =>
+        product.product_name.toLowerCase().includes(debouncedSearchText.toLowerCase())
+      );
+    }
+  }, [debouncedSearchText, data]);
 
   return (
     <div>
       <h1 className="mb-3 text-center text-xl font-bold">All Products</h1>
       <div className="mb-3 flex items-center justify-between">
-        <p>Total Products: {data.total_products}</p>
-        <Button onPress={() => navigate("/product/add")}>
-          <PlusIcon className="size-4" />
-          Add Product
-        </Button>
+        <p>
+          Total Products: <strong>{filteredProducts.length}</strong>
+        </p>
+        <div className="flex items-center gap-3">
+          <div>
+            <Input
+              variant="bordered"
+              size="sm"
+              placeholder="Search products by name..."
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              className="w-[300px]"
+            />
+          </div>
+          <Button size="sm">
+            <PlusIcon className="size-4" onPress={() => navigate("/product/add")} />
+            Add Product
+          </Button>
+        </div>
       </div>
-      <ProductTable products={products} />
+      <ProductTable products={filteredProducts} />
     </div>
   );
 }

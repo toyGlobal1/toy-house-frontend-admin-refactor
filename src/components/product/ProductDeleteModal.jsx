@@ -1,4 +1,5 @@
 import {
+  addToast,
   Button,
   Modal,
   ModalBody,
@@ -7,10 +8,38 @@ import {
   ModalHeader,
   useDisclosure,
 } from "@heroui/react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { TrashIcon } from "lucide-react";
+import { PRODUCT_KEY } from "../../constants/query-key";
+import { deleteProduct } from "../../service/product.service";
 
-export function ProductDeleteModal() {
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+export function ProductDeleteModal({ id }) {
+  const queryClient = useQueryClient();
+  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
+
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: deleteProduct,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [PRODUCT_KEY] });
+      onClose();
+      addToast({
+        title: "Success",
+        description: "Product has been deleted successfully",
+        color: "success",
+      });
+    },
+    onError: () => {
+      addToast({
+        title: "Error",
+        description: "Failed to delete product",
+        color: "danger",
+      });
+    },
+  });
+
+  const handleDelete = async () => {
+    await mutateAsync(id);
+  };
 
   return (
     <>
@@ -34,7 +63,11 @@ export function ProductDeleteModal() {
                 <Button variant="light" onPress={onClose}>
                   Cancel
                 </Button>
-                <Button onPress={onClose} color="danger">
+                <Button
+                  onPress={handleDelete}
+                  isLoading={isPending}
+                  isDisabled={isPending}
+                  color="danger">
                   Delete
                 </Button>
               </ModalFooter>
