@@ -1,12 +1,12 @@
 import { createBrowserRouter } from "react-router";
 import DashboardLayout from "../layouts/DashboardLayout";
-import AddProductPage from "../pages/AddProductPage";
 import BrandPage from "../pages/brand/BrandPage";
 import CategoryPage from "../pages/category/CategoryPage";
 import ColorPage from "../pages/color/ColorPage";
 import DashboardPage from "../pages/DashboardPage";
 import MaterialsPage from "../pages/material/MaterialsPage";
 import OrderPage from "../pages/OrderPage";
+import AddProductPage from "../pages/product/AddProductPage";
 import ProductInventoryPage from "../pages/product/ProductInventoryPage";
 import ProductPage from "../pages/product/ProductPage";
 import ReviewPage from "../pages/review/ReviewPage";

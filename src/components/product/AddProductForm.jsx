@@ -16,13 +16,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRef } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
-import { addProductSchema } from "../../schemas/addProductSchema";
+
 import {
   addProduct,
   getProductBrands,
   getProductCategories,
   getProductMaterials,
 } from "../../service/product.service";
+import { addProductSchema } from "../../validations/product.schema";
 import Editor from "../editor/Editor";
 
 export const AddProductForm = () => {
