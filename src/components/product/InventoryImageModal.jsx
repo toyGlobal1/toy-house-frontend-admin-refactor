@@ -91,7 +91,6 @@ export function InventoryImageModal({ inventoryId }) {
   const handleUploadSubmit = async () => {
     const images = [];
     for (const file of files) {
-      console.log("Uploading file:", file.file instanceof File ? "New" : "Old");
       if (file.file instanceof File) {
         const formData = new FormData();
         formData.append("image", file.file);

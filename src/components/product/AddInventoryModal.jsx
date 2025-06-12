@@ -23,6 +23,7 @@ import { uploadImageToIMG_BB } from "../../service/image.service";
 import { addProductInventory, getProductColors } from "../../service/product.service";
 import { addInventoryZodSchema } from "../../validations/product.schema";
 import { InventoryFileUploadGallery } from "../ui/InventoryFileUploadGallery";
+import { YouTubeEmbed } from "../ui/YouTubeEmbed";
 
 export function AddInventoryModal() {
   const { id: productId } = useParams();
@@ -38,7 +39,7 @@ export function AddInventoryModal() {
       <Modal size="xl" isOpen={isOpen} onOpenChange={onOpenChange}>
         <ModalContent>
           <ModalHeader className="flex justify-center">Add New Inventory</ModalHeader>
-          <ModalBody className="min-h-[500px] pb-4">
+          <ModalBody className="max-h-[500px] min-h-[500px] pb-4">
             <AddInventoryForm productId={productId} onClose={onClose} />
           </ModalBody>
         </ModalContent>
@@ -124,7 +125,19 @@ function AddInventoryForm({ productId, onClose }) {
         </Button>
       </Tab>
       <Tab key="videos" title="Videos">
-        <div className="">Coming Soon...</div>
+        <div className="space-y-4">
+          <YouTubeEmbed
+            src="https://www.youtube.com/embed/FQV4FLlneyQ?si=5Yj6NIKR5GftNSN-"
+            title="YouTube video player"
+            className="w-full"
+          />
+          <YouTubeEmbed
+            src="https://www.youtube.com/embed/FQV4FLlneyQ?si=5Yj6NIKR5GftNSN-"
+            title="YouTube video player"
+            className="w-full"
+          />
+        </div>
+
         <Button className="absolute bottom-8 right-8" onPress={() => setSelectedKey("basic-info")}>
           Next
         </Button>

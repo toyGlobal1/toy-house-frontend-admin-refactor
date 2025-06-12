@@ -15,7 +15,7 @@ const DASHBOARD_NAV_ITEMS = [
   { title: "Brands", href: "/brand", icon: TbBrandCtemplar },
   { title: "Colors", href: "/color", icon: IoColorPalette },
   { title: "Materials", href: "/material", icon: FaTools },
-  { title: "Reviews", href: "/reviews", icon: MdRateReview },
+  { title: "Reviews", href: "/review", icon: MdRateReview },
 ];
 
 export default function DashboardSidebar() {
