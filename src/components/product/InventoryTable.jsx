@@ -9,11 +9,12 @@ import {
   TableHeader,
   TableRow,
 } from "@heroui/react";
-import { EyeIcon, TrashIcon } from "lucide-react";
+import { TrashIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 import Swal from "sweetalert2";
 import { InventoryImageModal } from "./InventoryImageModal";
 import { InventoryUpdateModal } from "./InventoryUpdateModal";
+import { InventoryVideoModal } from "./InventoryVideoModal";
 
 const columns = [
   { id: "image", name: "Image" },
@@ -108,9 +109,7 @@ export function InventoryTable({ inventories }) {
                 <InventoryImageModal inventoryId={item.inventory_id} />
               </TableCell>
               <TableCell className="max-w-sm">
-                <Button isIconOnly size="sm">
-                  <EyeIcon className="size-4" />
-                </Button>
+                <InventoryVideoModal videos={item.videos} />
               </TableCell>
               <TableCell>{item.color}</TableCell>
               <TableCell>{item.quantity}</TableCell>

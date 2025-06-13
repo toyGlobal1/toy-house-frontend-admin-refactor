@@ -48,6 +48,7 @@ export const addInventoryZodSchema = z.object({
     .number()
     .min(0, "Tax percent must be a non-negative number")
     .max(100, "Tax percent cannot exceed 100"),
+  product_videos: z.array(z.object({ video_url: z.string().url().min(1) })),
   is_featured: z.boolean().optional().default(false),
   mark_unavailable: z.boolean().optional().default(false),
 });
