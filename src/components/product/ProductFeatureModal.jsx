@@ -31,7 +31,7 @@ export function ProductFeatureModal({ product }) {
       <Modal size="2xl" isOpen={isOpen} onOpenChange={onOpenChange}>
         <ModalContent>
           <ModalHeader className="flex flex-col items-center gap-1">
-            Edit Product Inventory
+            Edit Product Feature
           </ModalHeader>
           <ModalBody className="pb-4">
             <InventoryFeatureTable productId={product.product_id} onClose={onClose} />
