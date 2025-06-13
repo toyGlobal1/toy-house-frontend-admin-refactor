@@ -36,6 +36,12 @@ export const updateProductInventory = async (data) => {
   );
 };
 
+export const deleteProductInventory = async (inventoryId) => {
+  return await axiosInstance.delete(
+    `/api/v1/admin/product/inventory/delete/${inventoryId}?request-id=1234`
+  );
+};
+
 /* Product Inventory Image */
 export const getProductInventoryImages = async (inventoryId) => {
   return await axiosInstance.get(

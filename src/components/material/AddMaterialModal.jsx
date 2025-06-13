@@ -43,7 +43,7 @@ function AddMaterialForm({ onClose }) {
 
   const { control, handleSubmit, formState } = useForm({
     resolver: zodResolver(materialZodSchema),
-    defaultValues: { name: "", description: "" },
+    defaultValues: { name: "", material_description: "" },
   });
 
   const { mutateAsync, isPending } = useMutation({
@@ -88,7 +88,7 @@ function AddMaterialForm({ onClose }) {
       />
       <Controller
         control={control}
-        name="description"
+        name="material_description"
         render={({ field, fieldState: { error, invalid } }) => (
           <Textarea
             {...field}

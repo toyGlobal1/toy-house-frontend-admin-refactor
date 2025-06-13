@@ -3,7 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { TrashIcon } from "lucide-react";
 import Swal from "sweetalert2";
 import { MATERIAL_KEY } from "../../constants/query-key";
-import { deleteCategory } from "../../service/category.service";
+import { deleteMaterial } from "../../service/material.service";
 
 export function MaterialCard({ material }) {
   const queryClient = useQueryClient();
@@ -16,7 +16,7 @@ export function MaterialCard({ material }) {
       confirmButtonText: "Delete",
     });
     if (isConfirmed) {
-      await deleteCategory(material.category_id);
+      await deleteMaterial(material.material_id);
       queryClient.invalidateQueries({ queryKey: [MATERIAL_KEY] });
     }
   };
@@ -31,8 +31,8 @@ export function MaterialCard({ material }) {
       </CardHeader>
       <CardBody>
         <div>
-          {material?.description}
-          {material?.description || "No description available."}
+          {material?.material_description}
+          {material?.material_description || "No description available."}
         </div>
       </CardBody>
     </Card>

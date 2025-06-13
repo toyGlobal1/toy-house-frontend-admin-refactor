@@ -1,7 +1,8 @@
-import { Card, CardBody, CardHeader, cn, Radio, RadioGroup } from "@heroui/react";
+import { Button, Card, CardBody, CardHeader, cn, Radio, RadioGroup } from "@heroui/react";
 import { useSuspenseQueries } from "@tanstack/react-query";
+import { SquarePenIcon } from "lucide-react";
 import { useState } from "react";
-import { useParams } from "react-router";
+import { Link, useParams } from "react-router";
 import { AddInventoryModal } from "../../components/product/AddInventoryModal";
 import { InventoryTable } from "../../components/product/InventoryTable";
 import { COLOR_KEY, PRODUCT_INVENTORY_KEY, PRODUCT_KEY } from "../../constants/query-key";
@@ -27,13 +28,17 @@ export default function ProductInventoryPage() {
 
   const inventories = productInventories?.inventories || [];
 
-  console.log(inventories);
-
   return (
     <div>
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <Card className={cardStyles.card}>
-          <CardHeader className={cardStyles.header}>Basic Information</CardHeader>
+          <CardHeader className={cardStyles.header}>
+            Basic Information
+            <Button size="sm" className="ml-auto" as={Link} to={`/product/${id}/update`}>
+              <SquarePenIcon className="size-3.5" />
+              Edit
+            </Button>
+          </CardHeader>
           <CardBody
             className={cn(
               cardStyles.body,

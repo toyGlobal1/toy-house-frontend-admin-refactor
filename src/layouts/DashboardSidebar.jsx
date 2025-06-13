@@ -41,7 +41,7 @@ export default function DashboardSidebar() {
           ))}
         </ul>
       </nav>
-      <button className="inline-flex w-full items-center gap-2 rounded-md px-3 py-1 font-medium hover:bg-default">
+      <button className="inline-flex w-full items-center gap-2 rounded-md px-3 py-1 font-medium text-danger/80 hover:bg-default">
         <LuLogOut className="size-5" />
         Logout
       </button>

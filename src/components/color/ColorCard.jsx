@@ -30,7 +30,7 @@ export function ColorCard({ color }) {
         </Button>
       </CardHeader>
       <CardBody>
-        <div className="size-24 rounded-lg bg-red-500" />
+        <div style={{ backgroundColor: color.color_hex_code }} className="size-24 rounded-lg" />
       </CardBody>
     </Card>
   );

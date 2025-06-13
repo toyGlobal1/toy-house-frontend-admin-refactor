@@ -9,9 +9,13 @@ import {
   TableHeader,
   TableRow,
 } from "@heroui/react";
+import { useQueryClient } from "@tanstack/react-query";
 import { TrashIcon } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useParams } from "react-router";
 import Swal from "sweetalert2";
+import { PRODUCT_INVENTORY_KEY } from "../../constants/query-key";
+import { deleteProductInventory } from "../../service/product.service";
 import { InventoryImageModal } from "./InventoryImageModal";
 import { InventoryUpdateModal } from "./InventoryUpdateModal";
 import { InventoryVideoModal } from "./InventoryVideoModal";
@@ -63,8 +67,12 @@ const columns = [
 ];
 
 export function InventoryTable({ inventories }) {
+  const { id: productId } = useParams();
+  const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const rowsPerPage = 20;
+
+  console.log(productId);
 
   const pages = Math.ceil(inventories.length / rowsPerPage);
 
@@ -84,7 +92,8 @@ export function InventoryTable({ inventories }) {
       confirmButtonText: "Delete",
     });
     if (isConfirmed) {
-      console.log(inventoryId); // TODO: Call delete inventory API
+      await deleteProductInventory(inventoryId);
+      queryClient.invalidateQueries({ queryKey: [PRODUCT_INVENTORY_KEY, productId] });
     }
   };
 
