@@ -1,4 +1,4 @@
-import { AddProductForm } from "../components/product/AddProductForm";
+import { AddProductForm } from "../../components/product/AddProductForm";
 
 export const AddProductPage = () => {
   return (

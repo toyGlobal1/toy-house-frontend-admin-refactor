@@ -22,12 +22,6 @@ export const getProductDetails = async (productId) => {
   );
 };
 
-export const getProductColors = async () => {
-  return await axiosInstance.get(
-    "/api/v1/admin/colors/get?page-number=0&page-size=10&request-id=1234"
-  );
-};
-
 export const addProductInventory = async (data) => {
   return await axiosInstance.post(
     `/api/v1/admin/product/inventory/upload/inventory?request-id=1234`,
@@ -39,6 +33,12 @@ export const updateProductInventory = async (data) => {
   return await axiosInstance.put(
     `/api/v1/admin/product/inventory/update/inventory?request-id=1234`,
     data
+  );
+};
+
+export const deleteProductInventory = async (inventoryId) => {
+  return await axiosInstance.delete(
+    `/api/v1/admin/product/inventory/delete/${inventoryId}?request-id=1234`
   );
 };
 

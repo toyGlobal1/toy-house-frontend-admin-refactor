@@ -9,3 +9,7 @@ export const getAllMaterials = async () => {
     "/api/v1/admin/materials/get?page-number=0&page-size=1000&request-id=1234"
   );
 };
+
+export const deleteMaterial = async (materialId) => {
+  return await axiosInstance.delete(`/api/v1/admin/materials/delete/${materialId}?request-id=1234`);
+};

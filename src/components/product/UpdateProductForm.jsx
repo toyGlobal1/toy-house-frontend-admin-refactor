@@ -28,7 +28,7 @@ import {
 import { addProductSchema } from "../../validations/product.schema";
 import Editor from "../editor/Editor";
 
-export const AddProductForm = () => {
+export const UpdateProductForm = ({ product }) => {
   const productDescriptionRef = useRef(null);
   const boxItemsRef = useRef(null);
   const highlightsRef = useRef(null);
@@ -75,21 +75,21 @@ export const AddProductForm = () => {
     setValue,
   } = useForm({
     resolver: zodResolver(addProductSchema),
-    defaultValues: {
-      category_id: 1,
-      brand_id: 1,
-      name: "",
-      number_of_pieces: 0,
-      warranty_info: "",
-      minimum_age_range: 0,
-      maximum_age_range: 0,
-      material_ids: [],
+    values: {
+      category_id: product.category.category_id,
+      brand_id: product.brand.brand_id,
+      name: product.product_name,
+      number_of_pieces: product.number_of_pieces,
+      warranty_info: product.warranty_info,
+      minimum_age_range: product.minimum_age_range,
+      maximum_age_range: product.maximum_age_range,
+      material_ids: product.materials.map((material) => material.material_id.toString()),
       dimensions: [],
-      description: "",
-      return_and_refund_policy: "",
+      description: product.description,
+      return_and_refund_policy: product.return_and_refund_policy,
       dimension_types: [],
-      summary: "",
-      in_the_box: "",
+      summary: product.summary, // NOTE: Summary is Highlights in UI
+      in_the_box: product.in_the_box,
     },
   });
 
@@ -254,6 +254,7 @@ export const AddProductForm = () => {
                           ? "No categories"
                           : "Select category"
                     }
+                    defaultSelectedKeys={[field.value.toString()]}
                     isInvalid={!!errors.category_id}
                     errorMessage={errors.category_id?.message}
                     onChange={(e) => field.onChange(Number(e.target.value))}
@@ -281,6 +282,7 @@ export const AddProductForm = () => {
                           ? "No brands"
                           : "Select brand"
                     }
+                    defaultSelectedKeys={[field.value.toString()]}
                     isInvalid={!!errors.brand_id}
                     errorMessage={errors.brand_id?.message}
                     onChange={(e) => field.onChange(Number(e.target.value))}
@@ -364,6 +366,7 @@ export const AddProductForm = () => {
                   errorMessage={errors.material_ids?.message}
                   items={materialsData?.materials || []}
                   selectionMode="multiple"
+                  defaultSelectedKeys={field.value}
                   disabled={!materialsData}>
                   {(material) => (
                     <SelectItem key={material.material_id}>{material.name}</SelectItem>
@@ -563,7 +566,7 @@ export const AddProductForm = () => {
           {/* Submit Button */}
           <div className="flex justify-end pt-6">
             <Button type="submit" color="primary" isLoading={isSubmitting} className="px-8">
-              {isSubmitting ? "Adding Product..." : "Add Product"}
+              {isSubmitting ? "Updating Product..." : "Update Product"}
             </Button>
           </div>
         </form>

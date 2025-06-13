@@ -1,6 +1,7 @@
 import {
   addToast,
   Button,
+  Input,
   Modal,
   ModalBody,
   ModalContent,
@@ -14,16 +15,16 @@ import {
 } from "@heroui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
-import { PlusCircleIcon } from "lucide-react";
+import { PlusCircleIcon, PlusIcon, TrashIcon } from "lucide-react";
 import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { useParams } from "react-router";
-import { PRODUCT_COLOR_KEY, PRODUCT_INVENTORY_KEY } from "../../constants/query-key";
+import { COLOR_KEY, PRODUCT_INVENTORY_KEY } from "../../constants/query-key";
+import { getAllColors } from "../../service/color.service";
 import { uploadImageToIMG_BB } from "../../service/image.service";
-import { addProductInventory, getProductColors } from "../../service/product.service";
+import { addProductInventory } from "../../service/product.service";
 import { addInventoryZodSchema } from "../../validations/product.schema";
 import { InventoryFileUploadGallery } from "../ui/InventoryFileUploadGallery";
-import { YouTubeEmbed } from "../ui/YouTubeEmbed";
 
 export function AddInventoryModal() {
   const { id: productId } = useParams();
@@ -53,7 +54,7 @@ function AddInventoryForm({ productId, onClose }) {
   const [files, setFiles] = useState([]);
 
   const queryClient = useQueryClient();
-  const { data } = useSuspenseQuery({ queryKey: [PRODUCT_COLOR_KEY], queryFn: getProductColors });
+  const { data } = useSuspenseQuery({ queryKey: [COLOR_KEY], queryFn: getAllColors });
   const colors = data?.colors;
 
   const getUploadedImages = async () => {
@@ -75,7 +76,13 @@ function AddInventoryForm({ productId, onClose }) {
     defaultValues: {
       mark_unavailable: false,
       is_featured: false,
+      product_videos: [{ video_url: "" }],
     },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control: control,
+    name: "product_videos",
   });
 
   const { mutateAsync, isPending } = useMutation({
@@ -101,13 +108,8 @@ function AddInventoryForm({ productId, onClose }) {
   const onSubmit = async (data) => {
     const payload = {
       product_id: productId,
-      inventory: {
-        ...data,
-        product_images: await getUploadedImages(),
-        product_videos: [], // TODO: Handle video uploads
-      },
+      inventory: { ...data, product_images: await getUploadedImages() },
     };
-    console.log("Form submitted with data:", data);
     await mutateAsync(payload);
   };
 
@@ -124,19 +126,55 @@ function AddInventoryForm({ productId, onClose }) {
           Next
         </Button>
       </Tab>
-      <Tab key="videos" title="Videos">
-        <div className="space-y-4">
-          <YouTubeEmbed
-            src="https://www.youtube.com/embed/FQV4FLlneyQ?si=5Yj6NIKR5GftNSN-"
-            title="YouTube video player"
-            className="w-full"
-          />
-          <YouTubeEmbed
-            src="https://www.youtube.com/embed/FQV4FLlneyQ?si=5Yj6NIKR5GftNSN-"
-            title="YouTube video player"
-            className="w-full"
-          />
-        </div>
+      <Tab key="videos" title="Videos" className="overflow-y-auto">
+        <label htmlFor="product_videos" className="inline-block text-sm">
+          Video URLs{" "}
+          <span className="text-xs font-medium text-gray-500">(YouTube embed links only)</span>
+        </label>
+        {fields.map((field, index) => (
+          <div className="my-1" key={field.id}>
+            <div className="flex items-center gap-2">
+              <Controller
+                name={`product_videos.${index}.video_url`}
+                control={control}
+                render={({ field, fieldState: { error, invalid } }) => (
+                  <Input
+                    id="product_videos"
+                    {...field}
+                    size="sm"
+                    label={`URL #${index + 1}`}
+                    placeholder="https://youtube.com"
+                    variant="bordered"
+                    className="flex-1"
+                    isInvalid={invalid}
+                    errorMessage={error?.message}
+                  />
+                )}
+              />
+              {fields.length > 1 && (
+                <Button
+                  isIconOnly
+                  type="button"
+                  size="sm"
+                  color="danger"
+                  variant="light"
+                  onPress={() => remove(index)}
+                  aria-label="Remove URL"
+                  className="self mb-2">
+                  <TrashIcon className="size-4" />
+                </Button>
+              )}
+            </div>
+          </div>
+        ))}
+        <Button
+          type="button"
+          size="sm"
+          onPress={() => append({ video_url: "" })}
+          className="mt-1 w-fit">
+          <PlusIcon className="size-4" />
+          Add More URL
+        </Button>
 
         <Button className="absolute bottom-8 right-8" onPress={() => setSelectedKey("basic-info")}>
           Next

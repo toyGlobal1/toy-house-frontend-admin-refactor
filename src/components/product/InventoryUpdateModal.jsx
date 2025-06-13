@@ -14,8 +14,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { SquarePenIcon } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
-import { PRODUCT_COLOR_KEY, PRODUCT_INVENTORY_KEY } from "../../constants/query-key";
-import { getProductColors, updateProductInventory } from "../../service/product.service";
+import { COLOR_KEY, PRODUCT_INVENTORY_KEY } from "../../constants/query-key";
+import { getAllColors } from "../../service/color.service";
+import { updateProductInventory } from "../../service/product.service";
 import { inventoryUpdateZodSchema } from "../../validations/product.schema";
 
 export function InventoryUpdateModal({ inventory }) {
@@ -42,7 +43,7 @@ export function InventoryUpdateModal({ inventory }) {
 
 function InventoryUpdateForm({ inventory, onClose }) {
   const queryClient = useQueryClient();
-  const { data } = useSuspenseQuery({ queryKey: [PRODUCT_COLOR_KEY], queryFn: getProductColors });
+  const { data } = useSuspenseQuery({ queryKey: [COLOR_KEY], queryFn: getAllColors });
   const colors = data?.colors;
 
   const selectedColor = colors.find(
