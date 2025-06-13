@@ -2,11 +2,13 @@ import { addToast, Button, Input } from "@heroui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { Controller, useForm } from "react-hook-form";
+import { useNavigate } from "react-router";
 import { login } from "../../service/auth.service";
 import { loginZodSchema } from "../../validations/auth.schema";
 
 export function LoginForm() {
-  const { control, handleSubmit, formState } = useForm({
+  const navigate = useNavigate();
+  const { control, handleSubmit } = useForm({
     resolver: zodResolver(loginZodSchema),
     defaultValues: { username: "", password: "" },
   });
@@ -14,6 +16,7 @@ export function LoginForm() {
   const { mutateAsync, isPending } = useMutation({
     mutationFn: login,
     onSuccess: () => {
+      navigate("/dashboard");
       addToast({
         title: "Success",
         description: "Login successful",
@@ -30,7 +33,7 @@ export function LoginForm() {
   });
 
   const onSubmit = async (data) => {
-    console.log(data);
+    await mutateAsync(data);
   };
 
   return (
