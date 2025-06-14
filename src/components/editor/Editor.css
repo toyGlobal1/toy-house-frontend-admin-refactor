@@ -23,14 +23,11 @@
   border: none !important;
   box-shadow: none !important;
   border-radius: 0 !important;
-  height: 100% !important;
+  height: 150px !important;
 }
 .ql-toolbar {
   border: none !important;
   border-bottom: 1px solid #ccc !important;
   box-shadow: none !important;
   border-radius: 0 !important;
-}
-.ql-editor {
-  height: 150px !important;
 }
