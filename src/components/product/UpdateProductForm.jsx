@@ -3,8 +3,6 @@ import {
   Card,
   CardBody,
   CardHeader,
-  Checkbox,
-  CheckboxGroup,
   Divider,
   Input,
   NumberInput,
@@ -15,15 +13,14 @@ import {
 } from "@heroui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useEffect, useRef } from "react";
-import { Controller, useForm, useWatch } from "react-hook-form";
+import { useRef } from "react";
+import { Controller, useForm } from "react-hook-form";
 import { BRAND_KEY, CATEGORY_KEY, MATERIAL_KEY } from "../../constants/query-key";
-import { ProductDimensionUnitEnum, ProductWeightUnitEnum } from "../../enums/product.enum";
 import {
-  addProduct,
   getProductBrands,
   getProductCategories,
   getProductMaterials,
+  updateProduct,
 } from "../../service/product.service";
 import { addProductSchema } from "../../validations/product.schema";
 import Editor from "../editor/Editor";
@@ -33,23 +30,23 @@ export const UpdateProductForm = ({ product }) => {
   const boxItemsRef = useRef(null);
   const highlightsRef = useRef(null);
 
-  const { data: productCategories } = useQuery({
+  const { data: categoriesData, isFetching: isCategoriesFetching } = useQuery({
     queryKey: [CATEGORY_KEY],
     queryFn: getProductCategories,
   });
 
-  const { data: brandsData } = useQuery({
+  const { data: brandsData, isFetching: isBrandsFetching } = useQuery({
     queryKey: [BRAND_KEY],
     queryFn: getProductBrands,
   });
 
-  const { data: materialsData } = useQuery({
+  const { data: materialsData, isFetching: isMaterialsFetching } = useQuery({
     queryKey: [MATERIAL_KEY],
     queryFn: getProductMaterials,
   });
 
-  const { mutate: addProductMutation } = useMutation({
-    mutationFn: addProduct,
+  const { mutateAsync } = useMutation({
+    mutationFn: updateProduct,
     onSuccess: () => {
       addToast({
         title: "Product added successfully",
@@ -72,7 +69,6 @@ export const UpdateProductForm = ({ product }) => {
     handleSubmit,
     control,
     formState: { errors, isSubmitting },
-    setValue,
   } = useForm({
     resolver: zodResolver(addProductSchema),
     values: {
@@ -84,7 +80,6 @@ export const UpdateProductForm = ({ product }) => {
       minimum_age_range: product.minimum_age_range,
       maximum_age_range: product.maximum_age_range,
       material_ids: product.materials.map((material) => material.material_id.toString()),
-      dimensions: [],
       description: product.description,
       return_and_refund_policy: product.return_and_refund_policy,
       dimension_types: [],
@@ -93,156 +88,19 @@ export const UpdateProductForm = ({ product }) => {
     },
   });
 
-  const selectedDimensionTypes = useWatch({
-    control,
-    name: "dimension_types",
-  });
-
-  const handleDimensionTypeChange = (types) => {
-    // Update the dimension_types field
-    setValue("dimension_types", types);
-
-    // Create dimension objects based on selected types
-    const newDimensions = types.map((type) => ({
-      type,
-      height: 0.01,
-      width: 0.01,
-      depth: 0.01,
-      weight: 0.01,
-      dimension_unit: "INCH",
-      weight_unit: "KG",
-    }));
-
-    setValue("dimensions", newDimensions);
+  const onSubmit = async (data) => {
+    const payload = {
+      product_id: product.product_id,
+      product: { ...data, dimensions: product.dimensions, sku: product.sku },
+    };
+    console.log(payload);
+    await mutateAsync(payload);
   };
-
-  const onSubmit = (data) => {
-    const product = { product: { ...data } };
-    addProductMutation(product);
-  };
-
-  const renderDimensionForm = (type, index) => (
-    <Card key={type} className="border-2 border-default-200 p-4">
-      <CardHeader className="pb-2">
-        <h4 className="text-md font-semibold capitalize">{type} Dimensions</h4>
-      </CardHeader>
-      <CardBody className="pt-0">
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            <Controller
-              control={control}
-              name={`dimensions.${index}.height`}
-              render={({ field, fieldState: { error, invalid } }) => (
-                <NumberInput
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  label="Height"
-                  placeholder="0.00"
-                  isInvalid={invalid}
-                  errorMessage={error?.message}
-                />
-              )}
-            />
-            <Controller
-              control={control}
-              name={`dimensions.${index}.width`}
-              render={({ field, fieldState: { error, invalid } }) => (
-                <NumberInput
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  label="Width"
-                  placeholder="0.00"
-                  isInvalid={invalid}
-                  errorMessage={error?.message}
-                />
-              )}
-            />
-            <Controller
-              control={control}
-              name={`dimensions.${index}.depth`}
-              render={({ field, fieldState: { error, invalid } }) => (
-                <NumberInput
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  label="Depth"
-                  placeholder="0.00"
-                  isInvalid={invalid}
-                  errorMessage={error?.message}
-                />
-              )}
-            />
-            <Controller
-              control={control}
-              name={`dimensions.${index}.weight`}
-              render={({ field, fieldState: { error, invalid } }) => (
-                <NumberInput
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  label="Weight"
-                  placeholder="0.00"
-                  isInvalid={invalid}
-                  errorMessage={error?.message}
-                />
-              )}
-            />
-          </div>
-
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <Controller
-              control={control}
-              name={`dimensions.${index}.dimension_unit`}
-              render={({ field, fieldState: { error, invalid } }) => (
-                <Select
-                  {...field}
-                  label="Dimension Unit"
-                  placeholder="Select dimension unit"
-                  isInvalid={invalid}
-                  errorMessage={error?.message}>
-                  {Object.values(ProductDimensionUnitEnum)?.map((value) => (
-                    <SelectItem key={value} value={value}>
-                      {value}
-                    </SelectItem>
-                  ))}
-                </Select>
-              )}
-            />
-            <Controller
-              control={control}
-              name={`dimensions.${index}.weight_unit`}
-              render={({ field, fieldState: { error, invalid } }) => (
-                <Select
-                  {...field}
-                  label="Weight Unit"
-                  placeholder="Select weight unit"
-                  isInvalid={invalid}
-                  errorMessage={error?.message}>
-                  {Object.values(ProductWeightUnitEnum)?.map((value) => (
-                    <SelectItem key={value} value={value}>
-                      {value}
-                    </SelectItem>
-                  ))}
-                </Select>
-              )}
-            />
-          </div>
-        </div>
-      </CardBody>
-    </Card>
-  );
-
-  useEffect(() => {
-    setValue("description", product.description);
-    productDescriptionRef.current.root.innerHTML = product.description || "";
-    setValue("in_the_box", product.in_the_box);
-    boxItemsRef.current.root.innerHTML = product.in_the_box || "";
-    setValue("summary", product.summary);
-    highlightsRef.current.root.innerHTML = product.summary || "";
-  }, [product, setValue]);
 
   return (
     <Card className="mx-auto max-w-4xl">
       <CardHeader>
-        <h2 className="text-2xl font-bold">Create New Product</h2>
+        <h2 className="text-2xl font-bold">Update Product Information</h2>
       </CardHeader>
       <CardBody>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -252,109 +110,88 @@ export const UpdateProductForm = ({ product }) => {
               <Controller
                 control={control}
                 name="category_id"
-                render={({ field }) => (
+                render={({ field, fieldState: { error, invalid } }) => (
                   <Select
-                    {...field}
-                    label="Category"
-                    placeholder={
-                      !productCategories
-                        ? "Loading categories..."
-                        : productCategories.categories.length === 0
-                          ? "No categories"
-                          : "Select category"
-                    }
-                    defaultSelectedKeys={[field.value.toString()]}
-                    isInvalid={!!errors.category_id}
-                    errorMessage={errors.category_id?.message}
+                    value={field.value}
                     onChange={(e) => field.onChange(Number(e.target.value))}
-                    items={productCategories?.categories || []}
-                    isRequired
-                    disabled={!productCategories}>
+                    defaultSelectedKeys={[field.value.toString()]}
+                    items={categoriesData?.categories || []}
+                    isLoading={isCategoriesFetching}
+                    label="Category"
+                    placeholder="Select category"
+                    isInvalid={invalid}
+                    errorMessage={error?.message}
+                    isRequired>
                     {(category) => (
                       <SelectItem key={category.category_id}>{category.name}</SelectItem>
                     )}
                   </Select>
                 )}
               />
-
               <Controller
                 control={control}
                 name="brand_id"
-                render={({ field }) => (
+                render={({ field, fieldState: { error, invalid } }) => (
                   <Select
-                    {...field}
-                    label="Brand"
-                    placeholder={
-                      !brandsData
-                        ? "Loading brands..."
-                        : brandsData.brands.length === 0
-                          ? "No brands"
-                          : "Select brand"
-                    }
-                    defaultSelectedKeys={[field.value.toString()]}
-                    isInvalid={!!errors.brand_id}
-                    errorMessage={errors.brand_id?.message}
+                    value={field.value}
                     onChange={(e) => field.onChange(Number(e.target.value))}
+                    defaultSelectedKeys={[field.value.toString()]}
                     items={brandsData?.brands || []}
-                    isRequired
-                    disabled={!brandsData}>
+                    isLoading={isBrandsFetching}
+                    label="Brand"
+                    placeholder="Select brand"
+                    isInvalid={invalid}
+                    errorMessage={error?.message}
+                    isRequired>
                     {(brand) => <SelectItem key={brand.brand_id}>{brand.name}</SelectItem>}
                   </Select>
                 )}
               />
             </div>
-
             {/* Product Name */}
             <Controller
               control={control}
               name="name"
-              render={({ field }) => (
+              render={({ field, fieldState: { error, invalid } }) => (
                 <Input
                   {...field}
                   label="Product Name"
                   placeholder="Enter product name"
-                  isInvalid={!!errors.name}
-                  errorMessage={errors.name?.message}
+                  isInvalid={invalid}
+                  errorMessage={error?.message}
                   isRequired
                 />
               )}
             />
-
             {/* Product Description */}
             <div className="rounded-lg border-2 border-default-200 bg-default-50">
-              <CardHeader className="mb-[-15px]">
-                <span className="text-sm text-default-600">Product Description</span>
-              </CardHeader>
-              <CardBody className="p-0">
-                <Controller
-                  control={control}
-                  name="description"
-                  render={({ field }) => (
-                    <Editor
-                      {...field}
-                      className="h-full w-full border-none shadow-none"
-                      ref={productDescriptionRef}
-                      defaultValue={field.value}
-                      onTextChange={() => {
-                        const html = productDescriptionRef.current?.root?.innerHTML;
-                        field.onChange(html);
-                      }}
-                    />
-                  )}
-                />
-              </CardBody>
+              <label className="mx-4 mt-2 block font-medium text-gray-700">
+                Product Description
+              </label>
+              <Controller
+                control={control}
+                name="description"
+                render={({ field }) => (
+                  <Editor
+                    className="h-full w-full border-none shadow-none"
+                    ref={productDescriptionRef}
+                    defaultValue={product?.product_description}
+                    onTextChange={() => {
+                      const html = productDescriptionRef.current?.root?.innerHTML;
+                      field.onChange(html);
+                    }}
+                  />
+                )}
+              />
             </div>
           </div>
-
-          <Divider />
-
           {/* Materials */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Materials</h3>
+          <div className="space-y-2">
+            <h3 className="font-semibold">Materials</h3>
             <Controller
               control={control}
               name="material_ids"
-              render={({ field }) => (
+              render={({ field, fieldState: { error, invalid } }) => (
                 <Select
                   value={field.value}
                   onChange={(e) => {
@@ -363,20 +200,18 @@ export const UpdateProductForm = ({ product }) => {
                       return;
                     }
                     const selectedValues = e.target.value.split(",");
-                    // Convert selected values to numbers
                     const numericValues = selectedValues.map((val) => Number(val));
-                    // Sort the numeric values
                     numericValues.sort();
                     field.onChange(numericValues);
                   }}
+                  defaultSelectedKeys={field.value}
+                  items={materialsData?.materials || []}
+                  isLoading={isMaterialsFetching}
                   label="Materials"
                   placeholder="Select materials"
-                  isInvalid={!!errors.material_ids}
-                  errorMessage={errors.material_ids?.message}
-                  items={materialsData?.materials || []}
-                  selectionMode="multiple"
-                  defaultSelectedKeys={field.value}
-                  disabled={!materialsData}>
+                  isInvalid={invalid}
+                  errorMessage={error?.message}
+                  selectionMode="multiple">
                   {(material) => (
                     <SelectItem key={material.material_id}>{material.name}</SelectItem>
                   )}
@@ -387,52 +222,9 @@ export const UpdateProductForm = ({ product }) => {
 
           <Divider />
 
-          {/* Dimensions */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Dimensions</h3>
-
-            {/* Dimension Type Selection */}
-            <div className="space-y-2">
-              <p className="text-sm text-gray-600">Select dimension types to configure:</p>
-              <Controller
-                control={control}
-                name="dimension_types"
-                render={({ field }) => (
-                  <CheckboxGroup
-                    value={field.value || []}
-                    onValueChange={handleDimensionTypeChange}
-                    orientation="horizontal"
-                    className="gap-4">
-                    <Checkbox value="BOX" color="primary">
-                      Box
-                    </Checkbox>
-                    <Checkbox value="PRODUCT" color="primary">
-                      Product
-                    </Checkbox>
-                  </CheckboxGroup>
-                )}
-              />
-            </div>
-
-            {/* Dynamic Dimension Forms */}
-            <div className="space-y-4">
-              {selectedDimensionTypes?.map((type, index) => renderDimensionForm(type, index))}
-
-              {(!selectedDimensionTypes || selectedDimensionTypes.length === 0) && (
-                <div className="rounded-lg border-2 border-dashed border-gray-300 py-8 text-center text-gray-500">
-                  <p>Select dimension types above to configure dimensions</p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <Divider />
-
           {/* Additional Information */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Additional Information</h3>
-
-            {/* Number of Pieces */}
             <Controller
               control={control}
               name="number_of_pieces"
@@ -447,10 +239,7 @@ export const UpdateProductForm = ({ product }) => {
                 />
               )}
             />
-
-            {/* Age Range */}
             <div className="space-y-4">
-              {/* <h3 className="text-lg font-semibold">Age Range</h3> */}
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <Controller
                   control={control}
@@ -459,15 +248,13 @@ export const UpdateProductForm = ({ product }) => {
                     <NumberInput
                       value={field.value}
                       onValueChange={field.onChange}
-                      label="Minimum Age"
+                      label="Minimum Age Range"
                       placeholder="Enter minimum age"
                       isInvalid={invalid}
                       errorMessage={error?.message}
                     />
                   )}
                 />
-
-                {/* Maximum Age */}
                 <Controller
                   control={control}
                   name="maximum_age_range"
@@ -475,7 +262,7 @@ export const UpdateProductForm = ({ product }) => {
                     <NumberInput
                       value={field.value}
                       onValueChange={field.onChange}
-                      label="Maximum Age"
+                      label="Maximum Age Range"
                       placeholder="Enter maximum age"
                       isInvalid={invalid}
                       errorMessage={error?.message}
@@ -484,8 +271,6 @@ export const UpdateProductForm = ({ product }) => {
                 />
               </div>
             </div>
-
-            {/* Warranty Information */}
             <Controller
               control={control}
               name="warranty_info"
@@ -500,8 +285,6 @@ export const UpdateProductForm = ({ product }) => {
                 />
               )}
             />
-
-            {/* Return and Refund Policy */}
             <Controller
               control={control}
               name="return_and_refund_policy"
@@ -516,65 +299,53 @@ export const UpdateProductForm = ({ product }) => {
               )}
             />
           </div>
-
           <Divider />
-
           {/* Detailed Information */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Detailed Information</h3>
-
             <div className="rounded-lg border-2 border-default-200 bg-default-50">
-              <CardHeader className="mb-[-15px]">
-                <span className="text-md font-semibold">Box Items</span>
-              </CardHeader>
-              <CardBody className="min-h-[200px]">
-                <Controller
-                  control={control}
-                  name="in_the_box"
-                  render={({ field }) => (
-                    <Editor
-                      {...field}
-                      className="h-full w-full border-none shadow-none"
-                      ref={boxItemsRef}
-                      defaultValue={field.value}
-                      onTextChange={() => {
-                        const html = boxItemsRef.current?.root?.innerHTML;
-                        field.onChange(html);
-                      }}
-                    />
-                  )}
-                />
-              </CardBody>
+              <label className="mx-4 mt-2 block font-medium text-gray-700">In the box</label>
+              <Controller
+                control={control}
+                name="in_the_box"
+                render={({ field }) => (
+                  <Editor
+                    ref={boxItemsRef}
+                    defaultValue={product?.in_the_box}
+                    onTextChange={() => {
+                      const html = boxItemsRef.current?.root?.innerHTML;
+                      field.onChange(html);
+                    }}
+                  />
+                )}
+              />
             </div>
 
             <div className="rounded-lg border-2 border-default-200 bg-default-50">
-              <CardHeader className="mb-[-15px]">
-                <span className="text-md font-semibold">Highlights</span>
-              </CardHeader>
-              <CardBody className="min-h-[200px]">
-                <Controller
-                  control={control}
-                  name="summary"
-                  render={({ field }) => (
-                    <Editor
-                      {...field}
-                      className="h-full w-full border-none shadow-none"
-                      ref={highlightsRef}
-                      defaultValue={field.value}
-                      onTextChange={() => {
-                        const html = highlightsRef.current?.root?.innerHTML;
-                        field.onChange(html);
-                      }}
-                    />
-                  )}
-                />
-              </CardBody>
+              <label className="mx-4 mt-2 block font-medium text-gray-700">Highlights</label>
+              <Controller
+                control={control}
+                name="summary"
+                render={({ field }) => (
+                  <Editor
+                    ref={highlightsRef}
+                    defaultValue={product?.summary}
+                    onTextChange={() => {
+                      const html = highlightsRef.current?.root?.innerHTML;
+                      field.onChange(html);
+                    }}
+                  />
+                )}
+              />
             </div>
           </div>
 
           {/* Submit Button */}
-          <div className="flex justify-end pt-6">
-            <Button type="submit" color="primary" isLoading={isSubmitting} className="px-8">
+          <div className="flex justify-end">
+            <Button
+              type="submit"
+              color="primary"
+              isLoading={isSubmitting}
+              className="px-8 font-medium uppercase">
               {isSubmitting ? "Updating Product..." : "Update Product"}
             </Button>
           </div>

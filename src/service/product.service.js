@@ -94,10 +94,14 @@ export const getProductBrands = async () => {
 
 export const getProductMaterials = async () => {
   return await axiosInstance.get(
-    "/api/v1/admin/materials/get?page-number=0&page-size=1000&request-id=11223344"
+    "/api/v1/admin/materials/get?page-number=0&page-size=1000&request-id=1234"
   );
 };
 
-export const addProduct = async (product) => {
-  return await axiosInstance.post("/api/v1/open/products/add/product?request-id=12341234", product);
+export const addProduct = async (data) => {
+  return await axiosInstance.post("/api/v1/open/products/add/product?request-id=1234", data);
+};
+
+export const updateProduct = async (data) => {
+  return await axiosInstance.put("/api/v1/open/products/update?request-id=1234", data);
 };

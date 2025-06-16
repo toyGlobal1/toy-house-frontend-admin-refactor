@@ -18,7 +18,11 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRef } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { BRAND_KEY, CATEGORY_KEY, MATERIAL_KEY } from "../../constants/query-key";
-import { ProductDimensionUnitEnum, ProductWeightUnitEnum } from "../../enums/product.enum";
+import {
+  ProductDimensionEnum,
+  ProductDimensionUnitEnum,
+  ProductWeightUnitEnum,
+} from "../../enums/product.enum";
 import {
   addProduct,
   getProductBrands,
@@ -33,17 +37,17 @@ export const AddProductForm = () => {
   const boxItemsRef = useRef(null);
   const highlightsRef = useRef(null);
 
-  const { data: productCategories } = useQuery({
+  const { data: categoriesData, isFetching: isCategoriesFetching } = useQuery({
     queryKey: [CATEGORY_KEY],
     queryFn: getProductCategories,
   });
 
-  const { data: brandsData } = useQuery({
+  const { data: brandsData, isFetching: isBrandsFetching } = useQuery({
     queryKey: [BRAND_KEY],
     queryFn: getProductBrands,
   });
 
-  const { data: materialsData } = useQuery({
+  const { data: materialsData, isFetching: isMaterialsFetching } = useQuery({
     queryKey: [MATERIAL_KEY],
     queryFn: getProductMaterials,
   });
@@ -76,17 +80,9 @@ export const AddProductForm = () => {
   } = useForm({
     resolver: zodResolver(addProductSchema),
     defaultValues: {
-      category_id: 1,
-      brand_id: 1,
       name: "",
       warranty_info: "",
-      material_ids: [],
-      dimensions: [],
-      description: "",
       return_and_refund_policy: "",
-      dimension_types: [],
-      summary: "",
-      in_the_box: "",
     },
   });
 
@@ -234,108 +230,85 @@ export const AddProductForm = () => {
               <Controller
                 control={control}
                 name="category_id"
-                render={({ field }) => (
+                render={({ field, fieldState: { error, invalid } }) => (
                   <Select
-                    {...field}
-                    label="Category"
-                    placeholder={
-                      !productCategories
-                        ? "Loading categories..."
-                        : productCategories.categories.length === 0
-                          ? "No categories"
-                          : "Select category"
-                    }
-                    isInvalid={!!errors.category_id}
-                    errorMessage={errors.category_id?.message}
+                    value={field.value}
                     onChange={(e) => field.onChange(Number(e.target.value))}
-                    items={productCategories?.categories || []}
-                    isRequired
-                    disabled={!productCategories}>
+                    items={categoriesData?.categories || []}
+                    isLoading={isCategoriesFetching}
+                    label="Category"
+                    placeholder="Select category"
+                    isInvalid={invalid}
+                    errorMessage={error?.message}
+                    isRequired>
                     {(category) => (
                       <SelectItem key={category.category_id}>{category.name}</SelectItem>
                     )}
                   </Select>
                 )}
               />
-
               <Controller
                 control={control}
                 name="brand_id"
-                render={({ field }) => (
+                render={({ field, fieldState: { error, invalid } }) => (
                   <Select
-                    {...field}
-                    label="Brand"
-                    placeholder={
-                      !brandsData
-                        ? "Loading brands..."
-                        : brandsData.brands.length === 0
-                          ? "No brands"
-                          : "Select brand"
-                    }
-                    isInvalid={!!errors.brand_id}
-                    errorMessage={errors.brand_id?.message}
+                    value={field.value}
                     onChange={(e) => field.onChange(Number(e.target.value))}
                     items={brandsData?.brands || []}
-                    isRequired
-                    disabled={!brandsData}>
+                    isLoading={isBrandsFetching}
+                    label="Brand"
+                    placeholder="Select brand"
+                    isInvalid={invalid}
+                    errorMessage={error?.message}
+                    isRequired>
                     {(brand) => <SelectItem key={brand.brand_id}>{brand.name}</SelectItem>}
                   </Select>
                 )}
               />
             </div>
-
             {/* Product Name */}
             <Controller
               control={control}
               name="name"
-              render={({ field }) => (
+              render={({ field, fieldState: { error, invalid } }) => (
                 <Input
                   {...field}
                   label="Product Name"
                   placeholder="Enter product name"
-                  isInvalid={!!errors.name}
-                  errorMessage={errors.name?.message}
+                  isInvalid={invalid}
+                  errorMessage={error?.message}
                   isRequired
                 />
               )}
             />
-
             {/* Product Description */}
             <div className="rounded-lg border-2 border-default-200 bg-default-50">
-              <CardHeader className="mb-[-15px]">
-                <span className="text-sm text-default-600">Product Description</span>
-                <span className="text-xs text-danger">*</span>
-              </CardHeader>
-              <CardBody className="p-0">
-                <Controller
-                  control={control}
-                  name="description"
-                  render={({ field }) => (
-                    <Editor
-                      {...field}
-                      className="h-full w-full border-none shadow-none"
-                      ref={productDescriptionRef}
-                      defaultValue={field.value}
-                      onTextChange={() => {
-                        const html = productDescriptionRef.current?.root?.innerHTML;
-                        field.onChange(html);
-                      }}
-                    />
-                  )}
-                />
-              </CardBody>
+              <label className="mx-4 mt-2 block font-medium text-gray-700">
+                Product Description
+              </label>
+              <Controller
+                control={control}
+                name="description"
+                render={({ field }) => (
+                  <Editor
+                    className="h-full w-full border-none shadow-none"
+                    ref={productDescriptionRef}
+                    onTextChange={() => {
+                      const html = productDescriptionRef.current?.root?.innerHTML;
+                      field.onChange(html);
+                    }}
+                  />
+                )}
+              />
             </div>
           </div>
-
-          <Divider />
-
           {/* Materials */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Materials</h3>
+          <div className="space-y-2">
+            <h3 className="font-semibold">Materials</h3>
             <Controller
               control={control}
               name="material_ids"
-              render={({ field }) => (
+              render={({ field, fieldState: { error, invalid } }) => (
                 <Select
                   value={field.value}
                   onChange={(e) => {
@@ -348,13 +321,13 @@ export const AddProductForm = () => {
                     numericValues.sort();
                     field.onChange(numericValues);
                   }}
+                  items={materialsData?.materials || []}
+                  isLoading={isMaterialsFetching}
                   label="Materials"
                   placeholder="Select materials"
-                  isInvalid={!!errors.material_ids}
-                  errorMessage={errors.material_ids?.message}
-                  items={materialsData?.materials || []}
-                  selectionMode="multiple"
-                  disabled={!materialsData}>
+                  isInvalid={invalid}
+                  errorMessage={error?.message}
+                  selectionMode="multiple">
                   {(material) => (
                     <SelectItem key={material.material_id}>{material.name}</SelectItem>
                   )}
@@ -363,11 +336,9 @@ export const AddProductForm = () => {
             />
           </div>
 
-          <Divider />
-
           {/* Dimensions */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Dimensions</h3>
+          <div className="space-y-2">
+            <h3 className="font-semibold">Dimensions</h3>
 
             {/* Dimension Type Selection */}
             <div className="space-y-2">
@@ -381,10 +352,10 @@ export const AddProductForm = () => {
                     onValueChange={handleDimensionTypeChange}
                     orientation="horizontal"
                     className="gap-4">
-                    <Checkbox value="BOX" color="primary">
+                    <Checkbox value={ProductDimensionEnum.box} color="primary">
                       Box
                     </Checkbox>
-                    <Checkbox value="PRODUCT" color="primary">
+                    <Checkbox value={ProductDimensionEnum.product} color="primary">
                       Product
                     </Checkbox>
                   </CheckboxGroup>
@@ -393,7 +364,7 @@ export const AddProductForm = () => {
             </div>
 
             {/* Dynamic Dimension Forms */}
-            <div className="space-y-4">
+            <div className="space-y-3">
               {selectedDimensionTypes?.map((type, index) => renderDimensionForm(type, index))}
 
               {(!selectedDimensionTypes || selectedDimensionTypes.length === 0) && (
@@ -409,8 +380,6 @@ export const AddProductForm = () => {
           {/* Additional Information */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Additional Information</h3>
-
-            {/* Number of Pieces */}
             <Controller
               control={control}
               name="number_of_pieces"
@@ -425,8 +394,6 @@ export const AddProductForm = () => {
                 />
               )}
             />
-
-            {/* Age Range */}
             <div className="space-y-4">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <Controller
@@ -443,8 +410,6 @@ export const AddProductForm = () => {
                     />
                   )}
                 />
-
-                {/* Maximum Age */}
                 <Controller
                   control={control}
                   name="maximum_age_range"
@@ -461,8 +426,6 @@ export const AddProductForm = () => {
                 />
               </div>
             </div>
-
-            {/* Warranty Information */}
             <Controller
               control={control}
               name="warranty_info"
@@ -477,8 +440,6 @@ export const AddProductForm = () => {
                 />
               )}
             />
-
-            {/* Return and Refund Policy */}
             <Controller
               control={control}
               name="return_and_refund_policy"
@@ -493,65 +454,55 @@ export const AddProductForm = () => {
               )}
             />
           </div>
-
           <Divider />
-
           {/* Detailed Information */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Detailed Information</h3>
-
             <div className="rounded-lg border-2 border-default-200 bg-default-50">
-              <CardHeader className="mb-[-15px]">
-                <span className="text-md font-semibold">Box Items</span>
-              </CardHeader>
-              <CardBody className="p-0">
-                <Controller
-                  control={control}
-                  name="in_the_box"
-                  render={({ field }) => (
-                    <Editor
-                      {...field}
-                      className="h-full w-full border-none shadow-none"
-                      ref={boxItemsRef}
-                      defaultValue={field.value}
-                      onTextChange={() => {
-                        const html = boxItemsRef.current?.root?.innerHTML;
-                        field.onChange(html);
-                      }}
-                    />
-                  )}
-                />
-              </CardBody>
+              <label className="mx-4 mt-2 block font-medium text-gray-700">
+                Detailed Information
+              </label>
+              <Controller
+                control={control}
+                name="in_the_box"
+                render={({ field }) => (
+                  <Editor
+                    ref={boxItemsRef}
+                    onTextChange={() => {
+                      const html = boxItemsRef.current?.root?.innerHTML;
+                      field.onChange(html);
+                    }}
+                  />
+                )}
+              />
             </div>
 
             <div className="rounded-lg border-2 border-default-200 bg-default-50">
-              <CardHeader className="mb-[-15px]">
-                <span className="text-md font-semibold">Highlights</span>
-              </CardHeader>
-              <CardBody className="p-0">
-                <Controller
-                  control={control}
-                  name="summary"
-                  render={({ field }) => (
-                    <Editor
-                      {...field}
-                      className="h-full w-full border-none shadow-none"
-                      ref={highlightsRef}
-                      defaultValue={field.value}
-                      onTextChange={() => {
-                        const html = highlightsRef.current?.root?.innerHTML;
-                        field.onChange(html);
-                      }}
-                    />
-                  )}
-                />
-              </CardBody>
+              <label className="mx-4 mt-2 block font-medium text-gray-700">
+                Detailed Information
+              </label>
+              <Controller
+                control={control}
+                name="summary"
+                render={({ field }) => (
+                  <Editor
+                    ref={highlightsRef}
+                    onTextChange={() => {
+                      const html = highlightsRef.current?.root?.innerHTML;
+                      field.onChange(html);
+                    }}
+                  />
+                )}
+              />
             </div>
           </div>
 
           {/* Submit Button */}
-          <div className="flex justify-end pt-6">
-            <Button type="submit" color="primary" isLoading={isSubmitting} className="px-8">
+          <div className="flex justify-end">
+            <Button
+              type="submit"
+              color="primary"
+              isLoading={isSubmitting}
+              className="px-8 font-medium uppercase">
               {isSubmitting ? "Adding Product..." : "Add Product"}
             </Button>
           </div>

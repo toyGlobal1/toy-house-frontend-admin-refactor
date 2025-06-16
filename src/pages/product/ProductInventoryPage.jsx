@@ -1,8 +1,9 @@
 import { Button, Card, CardBody, CardHeader, cn, Radio, RadioGroup } from "@heroui/react";
 import { useSuspenseQueries } from "@tanstack/react-query";
 import { SquarePenIcon } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link, useParams } from "react-router";
+import Editor from "../../components/editor/Editor";
 import { AddInventoryModal } from "../../components/product/AddInventoryModal";
 import { InventoryTable } from "../../components/product/InventoryTable";
 import { COLOR_KEY, PRODUCT_INVENTORY_KEY, PRODUCT_KEY } from "../../constants/query-key";
@@ -17,6 +18,7 @@ const cardStyles = {
 };
 
 export default function ProductInventoryPage() {
+  const productDescriptionRef = useRef(null);
   const { id } = useParams();
   const [{ data: productData }, { data: productInventories }] = useSuspenseQueries({
     queries: [
@@ -74,7 +76,11 @@ export default function ProductInventoryPage() {
         <Card className={cardStyles.card}>
           <CardHeader className={cardStyles.header}>Product Description</CardHeader>
           <CardBody className={cardStyles.body}>
-            <div dangerouslySetInnerHTML={{ __html: productData?.product_description }} />
+            <Editor
+              ref={productDescriptionRef}
+              defaultValue={productData?.product_description}
+              readOnly={true}
+            />
           </CardBody>
         </Card>
 

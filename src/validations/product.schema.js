@@ -22,7 +22,7 @@ export const addProductSchema = z.object({
         weight_unit: z.string().min(1, "Weight unit is required"),
       })
     )
-    .min(1, "At least one dimension is required"),
+    .optional(),
   return_and_refund_policy: z.string().optional(),
   in_the_box: z.string().optional(),
   summary: z.string().optional(),
