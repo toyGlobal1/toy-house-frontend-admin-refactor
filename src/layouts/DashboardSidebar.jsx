@@ -4,7 +4,7 @@ import { IoColorPalette } from "react-icons/io5";
 import { LuLogOut } from "react-icons/lu";
 import { MdDashboard, MdRateReview } from "react-icons/md";
 import { TbBrandCtemplar } from "react-icons/tb";
-import { NavLink } from "react-router";
+import { NavLink, useNavigate } from "react-router";
 import Logo from "../components/Logo";
 
 const DASHBOARD_NAV_ITEMS = [
@@ -19,6 +19,13 @@ const DASHBOARD_NAV_ITEMS = [
 ];
 
 export default function DashboardSidebar() {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/");
+  };
+
   return (
     <aside className="flex min-h-screen w-[13vw] flex-col border-r-2 bg-content1 pt-2">
       <Logo className="mx-auto mb-5" />
@@ -42,7 +49,9 @@ export default function DashboardSidebar() {
         </ul>
       </nav>
       <div className="border-t p-2">
-        <button className="inline-flex w-full items-center gap-2 rounded-md px-3 py-1 font-medium text-danger/80 hover:bg-default">
+        <button
+          className="inline-flex w-full items-center gap-2 rounded-md px-3 py-1 font-medium text-danger/80 hover:bg-default"
+          onClick={handleLogout}>
           <LuLogOut className="size-5" />
           Logout
         </button>

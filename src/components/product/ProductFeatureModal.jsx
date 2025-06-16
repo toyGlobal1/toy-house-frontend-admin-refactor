@@ -5,6 +5,7 @@ import {
   ModalBody,
   ModalContent,
   ModalHeader,
+  Spinner,
   Table,
   TableBody,
   TableCell,
@@ -13,7 +14,7 @@ import {
   TableRow,
   useDisclosure,
 } from "@heroui/react";
-import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Swal from "sweetalert2";
 import { PRODUCT_INVENTORY_KEY, PRODUCT_KEY } from "../../constants/query-key";
 import { getProductInventories, setFeaturedProduct } from "../../service/product.service";
@@ -52,7 +53,7 @@ const columns = [
 
 function InventoryFeatureTable({ productId, onClose }) {
   const queryClient = useQueryClient();
-  const { data } = useSuspenseQuery({
+  const { data, isFetching } = useQuery({
     queryKey: [PRODUCT_INVENTORY_KEY, productId],
     queryFn: () => getProductInventories(productId),
   });
@@ -85,7 +86,7 @@ function InventoryFeatureTable({ productId, onClose }) {
           </TableColumn>
         )}
       </TableHeader>
-      <TableBody items={inventories}>
+      <TableBody items={inventories} isLoading={isFetching} loadingContent={<Spinner />}>
         {(item) => (
           <TableRow key={item.inventory_id}>
             <TableCell>{item.color}</TableCell>

@@ -1,13 +1,12 @@
 import Quill from "quill";
+import { useEffect, useLayoutEffect, useRef } from "react";
+
 import "quill/dist/quill.core.css";
 import "quill/dist/quill.snow.css";
 import "./Editor.css";
 
-import { forwardRef, useEffect, useLayoutEffect, useRef } from "react";
-
-const Editor = forwardRef(({ readOnly, defaultValue, onTextChange, onSelectionChange }, ref) => {
+const Editor = ({ readOnly, defaultValue, onTextChange, onSelectionChange, ref }) => {
   const containerRef = useRef(null);
-  const defaultValueRef = useRef(defaultValue);
   const onTextChangeRef = useRef(onTextChange);
   const onSelectionChangeRef = useRef(onSelectionChange);
 
@@ -17,21 +16,19 @@ const Editor = forwardRef(({ readOnly, defaultValue, onTextChange, onSelectionCh
   });
 
   useEffect(() => {
-    ref.current?.enable(!readOnly);
-  }, [ref, readOnly]);
-
-  useEffect(() => {
     const container = containerRef.current;
     const editorContainer = container.appendChild(container.ownerDocument.createElement("div"));
     const quill = new Quill(editorContainer, {
       theme: "snow",
+      readOnly: readOnly,
+      modules: {
+        toolbar: readOnly ? null : undefined,
+      },
     });
 
     ref.current = quill;
 
-    if (defaultValueRef.current) {
-      quill.setContents(defaultValueRef.current);
-    }
+    quill.root.innerHTML = defaultValue || "";
 
     quill.on(Quill.events.TEXT_CHANGE, (...args) => {
       onTextChangeRef.current?.(...args);
@@ -45,14 +42,10 @@ const Editor = forwardRef(({ readOnly, defaultValue, onTextChange, onSelectionCh
       ref.current = null;
       container.innerHTML = "";
     };
-  }, [ref]);
+  }, [ref, readOnly, defaultValue]);
 
-  return (
-    <div ref={containerRef}>
-      <div className="ql-editor" dangerouslySetInnerHTML={{ __html: defaultValue }} />
-    </div>
-  );
-});
+  return <div ref={containerRef}></div>;
+};
 
 Editor.displayName = "Editor";
 
