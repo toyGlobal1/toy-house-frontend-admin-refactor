@@ -12,10 +12,10 @@ import {
   addToast,
 } from "@heroui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { BRAND_KEY, CATEGORY_KEY, MATERIAL_KEY } from "../../constants/query-key";
+import { BRAND_KEY, CATEGORY_KEY, MATERIAL_KEY, PRODUCT_KEY } from "../../constants/query-key";
 import {
   getProductBrands,
   getProductCategories,
@@ -29,6 +29,8 @@ export const UpdateProductForm = ({ product }) => {
   const productDescriptionRef = useRef(null);
   const boxItemsRef = useRef(null);
   const highlightsRef = useRef(null);
+
+  const queryClient = useQueryClient();
 
   const { data: categoriesData, isFetching: isCategoriesFetching } = useQuery({
     queryKey: [CATEGORY_KEY],
@@ -48,19 +50,18 @@ export const UpdateProductForm = ({ product }) => {
   const { mutateAsync } = useMutation({
     mutationFn: updateProduct,
     onSuccess: () => {
+      queryClient.invalidateQueries([PRODUCT_KEY, product.product_id]);
       addToast({
-        title: "Product added successfully",
-        description: "Product added successfully",
+        title: "Success",
+        description: "Product updated successfully",
         color: "success",
-        placement: "top-right",
       });
     },
     onError: () => {
       addToast({
-        title: "Failed to add product",
-        description: "Failed to add product",
+        title: "Error",
+        description: "Failed to update product",
         color: "danger",
-        placement: "top-right",
       });
     },
   });
@@ -82,7 +83,6 @@ export const UpdateProductForm = ({ product }) => {
       material_ids: product.materials.map((material) => material.material_id.toString()),
       description: product.description,
       return_and_refund_policy: product.return_and_refund_policy,
-      dimension_types: [],
       summary: product.summary, // NOTE: Summary is Highlights in UI
       in_the_box: product.in_the_box,
     },
@@ -93,14 +93,13 @@ export const UpdateProductForm = ({ product }) => {
       product_id: product.product_id,
       product: { ...data, dimensions: product.dimensions, sku: product.sku },
     };
-    console.log(payload);
     await mutateAsync(payload);
   };
 
   return (
     <Card className="mx-auto max-w-4xl">
       <CardHeader>
-        <h2 className="text-2xl font-bold">Update Product Information</h2>
+        <h2 className="text-xl font-medium">Update Product Information</h2>
       </CardHeader>
       <CardBody>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -225,22 +224,22 @@ export const UpdateProductForm = ({ product }) => {
           {/* Additional Information */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Additional Information</h3>
-            <Controller
-              control={control}
-              name="number_of_pieces"
-              render={({ field, fieldState: { error, invalid } }) => (
-                <NumberInput
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  label="Number of Pieces"
-                  placeholder="Enter number of pieces"
-                  isInvalid={invalid}
-                  errorMessage={error?.message}
-                />
-              )}
-            />
             <div className="space-y-4">
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <Controller
+                  control={control}
+                  name="number_of_pieces"
+                  render={({ field, fieldState: { error, invalid } }) => (
+                    <NumberInput
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      label="Number of Pieces"
+                      placeholder="Enter number of pieces"
+                      isInvalid={invalid}
+                      errorMessage={error?.message}
+                    />
+                  )}
+                />
                 <Controller
                   control={control}
                   name="minimum_age_range"

@@ -56,18 +56,16 @@ export const AddProductForm = () => {
     mutationFn: addProduct,
     onSuccess: () => {
       addToast({
-        title: "Product added successfully",
+        title: "Success",
         description: "Product added successfully",
         color: "success",
-        placement: "top-right",
       });
     },
     onError: () => {
       addToast({
-        title: "Failed to add product",
+        title: "Error",
         description: "Failed to add product",
         color: "danger",
-        placement: "top-right",
       });
     },
   });

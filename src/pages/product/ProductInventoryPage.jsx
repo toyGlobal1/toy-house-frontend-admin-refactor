@@ -19,6 +19,7 @@ const cardStyles = {
 
 export default function ProductInventoryPage() {
   const productDescriptionRef = useRef(null);
+  const productInTheBoxRef = useRef(null);
   const { id } = useParams();
   const [{ data: productData }, { data: productInventories }] = useSuspenseQueries({
     queries: [
@@ -75,7 +76,7 @@ export default function ProductInventoryPage() {
         <DimensionCard dimensions={productData?.dimensions} />
         <Card className={cardStyles.card}>
           <CardHeader className={cardStyles.header}>Product Description</CardHeader>
-          <CardBody className={cardStyles.body}>
+          <CardBody className={`${cardStyles.body} max-h-[300px] overflow-y-auto`}>
             <Editor
               ref={productDescriptionRef}
               defaultValue={productData?.product_description}
@@ -86,9 +87,13 @@ export default function ProductInventoryPage() {
 
         <Card className={cardStyles.card}>
           <CardHeader className={cardStyles.header}>In The Box</CardHeader>
-          <CardBody className={cardStyles.body}>
+          <CardBody className={`${cardStyles.body} max-h-[300px] overflow-y-auto`}>
             {productData?.in_the_box ? (
-              <div dangerouslySetInnerHTML={{ __html: productData?.in_the_box }} />
+              <Editor
+                ref={productInTheBoxRef}
+                defaultValue={productData?.in_the_box}
+                readOnly={true}
+              />
             ) : (
               <div className="text-gray-500">Information Not Available</div>
             )}

@@ -9,7 +9,7 @@ export const addProductSchema = z.object({
   warranty_info: z.string().optional(),
   minimum_age_range: z.number().optional(),
   maximum_age_range: z.number().optional(),
-  material_ids: z.array(z.number()).optional(),
+  material_ids: z.array(z.coerce.number()).optional(),
   dimensions: z
     .array(
       z.object({
