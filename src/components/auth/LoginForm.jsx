@@ -5,6 +5,7 @@ import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { login } from "../../service/auth.service";
 import { loginZodSchema } from "../../validations/auth.schema";
+import { PasswordInput } from "../ui/PasswordInput";
 
 export function LoginForm() {
   const navigate = useNavigate();
@@ -26,7 +27,7 @@ export function LoginForm() {
     onError: () => {
       addToast({
         title: "Error",
-        description: "Failed to login",
+        description: "Failed to login!",
         color: "danger",
       });
     },
@@ -37,7 +38,7 @@ export function LoginForm() {
   };
 
   return (
-    <form className="space-y-3" onSubmit={handleSubmit(onSubmit)}>
+    <form className="flex flex-col gap-5" onSubmit={handleSubmit(onSubmit)}>
       <Controller
         control={control}
         name="username"
@@ -56,9 +57,8 @@ export function LoginForm() {
         control={control}
         name="password"
         render={({ field, fieldState: { error, invalid } }) => (
-          <Input
+          <PasswordInput
             {...field}
-            type="password"
             label="Password"
             placeholder="Enter your password"
             variant="bordered"

@@ -29,8 +29,11 @@ export function ColorCard({ color }) {
           <TrashIcon className="size-3.5" />
         </Button>
       </CardHeader>
-      <CardBody>
-        <div style={{ backgroundColor: color.color_hex_code }} className="size-24 rounded-lg" />
+      <CardBody className="space-y-2">
+        <div className="text-sm text-gray-700">
+          Color Hex Code: <span className="font-medium">{color.color_hex_code}</span>
+        </div>
+        <div style={{ backgroundColor: color.color_hex_code }} className="h-24 rounded-lg" />
       </CardBody>
     </Card>
   );
