@@ -313,6 +313,7 @@ export const AddProductForm = () => {
             <div className="rounded-lg border-2 border-default-200 bg-default-50">
               <CardHeader className="mb-[-15px]">
                 <span className="text-sm text-default-600">Product Description</span>
+                <span className="text-xs text-danger">*</span>
               </CardHeader>
               <CardBody className="p-0">
                 <Controller
@@ -352,9 +353,7 @@ export const AddProductForm = () => {
                       return;
                     }
                     const selectedValues = e.target.value.split(",");
-                    // Convert selected values to numbers
                     const numericValues = selectedValues.map((val) => Number(val));
-                    // Sort the numeric values
                     numericValues.sort();
                     field.onChange(numericValues);
                   }}
@@ -438,7 +437,6 @@ export const AddProductForm = () => {
 
             {/* Age Range */}
             <div className="space-y-4">
-              {/* <h3 className="text-lg font-semibold">Age Range</h3> */}
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <Controller
                   control={control}
@@ -515,7 +513,7 @@ export const AddProductForm = () => {
               <CardHeader className="mb-[-15px]">
                 <span className="text-md font-semibold">Box Items</span>
               </CardHeader>
-              <CardBody className="min-h-[200px]">
+              <CardBody className="p-0">
                 <Controller
                   control={control}
                   name="in_the_box"
@@ -539,7 +537,7 @@ export const AddProductForm = () => {
               <CardHeader className="mb-[-15px]">
                 <span className="text-md font-semibold">Highlights</span>
               </CardHeader>
-              <CardBody className="min-h-[200px]">
+              <CardBody className="p-0">
                 <Controller
                   control={control}
                   name="summary"

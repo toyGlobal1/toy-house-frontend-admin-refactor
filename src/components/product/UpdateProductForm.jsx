@@ -15,7 +15,7 @@ import {
 } from "@heroui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { BRAND_KEY, CATEGORY_KEY, MATERIAL_KEY } from "../../constants/query-key";
 import { ProductDimensionUnitEnum, ProductWeightUnitEnum } from "../../enums/product.enum";
@@ -229,6 +229,15 @@ export const UpdateProductForm = ({ product }) => {
       </CardBody>
     </Card>
   );
+
+  useEffect(() => {
+    setValue("description", product.description);
+    productDescriptionRef.current.root.innerHTML = product.description || "";
+    setValue("in_the_box", product.in_the_box);
+    boxItemsRef.current.root.innerHTML = product.in_the_box || "";
+    setValue("summary", product.summary);
+    highlightsRef.current.root.innerHTML = product.summary || "";
+  }, [product, setValue]);
 
   return (
     <Card className="mx-auto max-w-4xl">
