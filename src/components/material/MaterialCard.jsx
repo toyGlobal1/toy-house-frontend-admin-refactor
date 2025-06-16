@@ -31,8 +31,11 @@ export function MaterialCard({ material }) {
       </CardHeader>
       <CardBody>
         <div>
-          {material?.material_description}
-          {material?.material_description || "No description available."}
+          {material?.material_description ? (
+            <p>{material.material_description}</p>
+          ) : (
+            <p>No description available.</p>
+          )}
         </div>
       </CardBody>
     </Card>

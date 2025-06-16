@@ -456,9 +456,7 @@ export const AddProductForm = () => {
           {/* Detailed Information */}
           <div className="space-y-4">
             <div className="rounded-lg border-2 border-default-200 bg-default-50">
-              <label className="mx-4 mt-2 block font-medium text-gray-700">
-                Detailed Information
-              </label>
+              <label className="mx-4 mt-2 block font-medium text-gray-700">In The Box</label>
               <Controller
                 control={control}
                 name="in_the_box"
@@ -475,9 +473,7 @@ export const AddProductForm = () => {
             </div>
 
             <div className="rounded-lg border-2 border-default-200 bg-default-50">
-              <label className="mx-4 mt-2 block font-medium text-gray-700">
-                Detailed Information
-              </label>
+              <label className="mx-4 mt-2 block font-medium text-gray-700">Highlights</label>
               <Controller
                 control={control}
                 name="summary"
