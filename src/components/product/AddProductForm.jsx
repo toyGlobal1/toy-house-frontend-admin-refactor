@@ -79,10 +79,7 @@ export const AddProductForm = () => {
       category_id: 1,
       brand_id: 1,
       name: "",
-      number_of_pieces: 0,
       warranty_info: "",
-      minimum_age_range: 0,
-      maximum_age_range: 0,
       material_ids: [],
       dimensions: [],
       description: "",
@@ -105,12 +102,6 @@ export const AddProductForm = () => {
     // Create dimension objects based on selected types
     const newDimensions = types.map((type) => ({
       type,
-      height: 0.01,
-      width: 0.01,
-      depth: 0.01,
-      weight: 0.01,
-      dimension_unit: "INCH",
-      weight_unit: "KG",
     }));
 
     setValue("dimensions", newDimensions);
@@ -445,7 +436,7 @@ export const AddProductForm = () => {
                     <NumberInput
                       value={field.value}
                       onValueChange={field.onChange}
-                      label="Minimum Age"
+                      label="Minimum Age Range"
                       placeholder="Enter minimum age"
                       isInvalid={invalid}
                       errorMessage={error?.message}
@@ -461,7 +452,7 @@ export const AddProductForm = () => {
                     <NumberInput
                       value={field.value}
                       onValueChange={field.onChange}
-                      label="Maximum Age"
+                      label="Maximum Age Range"
                       placeholder="Enter maximum age"
                       isInvalid={invalid}
                       errorMessage={error?.message}

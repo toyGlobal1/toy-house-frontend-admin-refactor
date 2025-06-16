@@ -20,9 +20,9 @@ const DASHBOARD_NAV_ITEMS = [
 
 export default function DashboardSidebar() {
   return (
-    <aside className="flex min-h-screen w-[13vw] flex-col border-r-2 bg-content1 p-3">
+    <aside className="flex min-h-screen w-[13vw] flex-col border-r-2 bg-content1 pt-2">
       <Logo className="mx-auto mb-5" />
-      <nav className="flex-1">
+      <nav className="flex-1 border-t p-2">
         <ul className="space-y-3">
           {DASHBOARD_NAV_ITEMS.map((item) => (
             <li key={item.href}>
@@ -41,10 +41,12 @@ export default function DashboardSidebar() {
           ))}
         </ul>
       </nav>
-      <button className="inline-flex w-full items-center gap-2 rounded-md px-3 py-1 font-medium text-danger/80 hover:bg-default">
-        <LuLogOut className="size-5" />
-        Logout
-      </button>
+      <div className="border-t p-2">
+        <button className="inline-flex w-full items-center gap-2 rounded-md px-3 py-1 font-medium text-danger/80 hover:bg-default">
+          <LuLogOut className="size-5" />
+          Logout
+        </button>
+      </div>
     </aside>
   );
 }

@@ -2,11 +2,14 @@ import { addToast, Button, Input } from "@heroui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { Controller, useForm } from "react-hook-form";
+import { useNavigate } from "react-router";
 import { login } from "../../service/auth.service";
 import { loginZodSchema } from "../../validations/auth.schema";
+import { PasswordInput } from "../ui/PasswordInput";
 
 export function LoginForm() {
-  const { control, handleSubmit, formState } = useForm({
+  const navigate = useNavigate();
+  const { control, handleSubmit } = useForm({
     resolver: zodResolver(loginZodSchema),
     defaultValues: { username: "", password: "" },
   });
@@ -14,6 +17,7 @@ export function LoginForm() {
   const { mutateAsync, isPending } = useMutation({
     mutationFn: login,
     onSuccess: () => {
+      navigate("/dashboard");
       addToast({
         title: "Success",
         description: "Login successful",
@@ -23,18 +27,18 @@ export function LoginForm() {
     onError: () => {
       addToast({
         title: "Error",
-        description: "Failed to login",
+        description: "Failed to login!",
         color: "danger",
       });
     },
   });
 
   const onSubmit = async (data) => {
-    console.log(data);
+    await mutateAsync(data);
   };
 
   return (
-    <form className="space-y-3" onSubmit={handleSubmit(onSubmit)}>
+    <form className="flex flex-col gap-5" onSubmit={handleSubmit(onSubmit)}>
       <Controller
         control={control}
         name="username"
@@ -53,9 +57,8 @@ export function LoginForm() {
         control={control}
         name="password"
         render={({ field, fieldState: { error, invalid } }) => (
-          <Input
+          <PasswordInput
             {...field}
-            type="password"
             label="Password"
             placeholder="Enter your password"
             variant="bordered"

@@ -8,9 +8,14 @@ import {
   TableHeader,
   TableRow,
 } from "@heroui/react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { Link } from "react-router";
+import Swal from "sweetalert2";
+import { PRODUCT_KEY } from "../../constants/query-key";
+import { changeProductStatus } from "../../service/product.service";
 import { ProductDeleteModal } from "./ProductDeleteModal";
+import { ProductFeatureModal } from "./ProductFeatureModal";
 
 const columns = [
   { id: "image", name: "Image" },
@@ -25,6 +30,7 @@ const columns = [
 ];
 
 export function ProductTable({ products }) {
+  const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const rowsPerPage = 20;
 
@@ -36,6 +42,20 @@ export function ProductTable({ products }) {
 
     return products.slice(start, end);
   }, [page, products]);
+
+  const handleChangeActive = async (product_id, activate) => {
+    const { isConfirmed } = await Swal.fire({
+      showCloseButton: true,
+      title: "Are you sure?",
+      text: "Are you sure you want to change the availability of this product?",
+      icon: "question",
+      confirmButtonText: "OK",
+    });
+    if (isConfirmed) {
+      await changeProductStatus({ product_id, activate });
+      queryClient.invalidateQueries({ queryKey: [PRODUCT_KEY] });
+    }
+  };
 
   return (
     <>
@@ -67,14 +87,16 @@ export function ProductTable({ products }) {
               <TableCell>{product.sku}</TableCell>
               <TableCell>{product.inventory_count}</TableCell>
               <TableCell>
-                <Chip variant="dot" size="sm" color={product.is_active ? "success" : "default"}>
-                  {product.is_active ? "Active" : "Inactive"}
-                </Chip>
+                <button
+                  className="cursor-pointer"
+                  onClick={() => handleChangeActive(product.product_id, !product.is_active)}>
+                  <Chip variant="dot" size="sm" color={product.is_active ? "success" : "default"}>
+                    {product.is_active ? "Active" : "Inactive"}
+                  </Chip>
+                </button>
               </TableCell>
               <TableCell>
-                <Chip size="sm" color={product.is_featured ? "primary" : "default"}>
-                  {product.is_featured ? "Featured" : "Not Featured"}
-                </Chip>
+                <ProductFeatureModal product={product} />
               </TableCell>
               <TableCell>
                 <ProductDeleteModal id={product.product_id} />

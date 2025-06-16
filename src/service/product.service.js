@@ -10,6 +10,20 @@ export const deleteProduct = async (productId) => {
   return await axiosInstance.delete(`/api/v1/open/products/delete/${productId}?request-id=1234`);
 };
 
+export const changeProductStatus = async (data) => {
+  return await axiosInstance.put(
+    `/api/v1/open/products/change/availability/status?request-id=1234`,
+    data
+  );
+};
+
+export const setFeaturedProduct = async (data) => {
+  return await axiosInstance.put(
+    `/api/v1/open/products/set/featured-product?request-id=1234`,
+    data
+  );
+};
+
 export const getProductInventories = async (productId) => {
   return await axiosInstance.get(
     `/api/v1/admin/product/inventory/get/inventory-dashboard/${productId}?page-number=0&page-size=1000&request-id=1234`
