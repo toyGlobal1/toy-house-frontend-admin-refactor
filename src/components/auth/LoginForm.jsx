@@ -3,6 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
+import { setAuthToken } from "../../lib/auth-token.util";
 import { login } from "../../service/auth.service";
 import { loginZodSchema } from "../../validations/auth.schema";
 import { PasswordInput } from "../ui/PasswordInput";
@@ -16,7 +17,9 @@ export function LoginForm() {
 
   const { mutateAsync, isPending } = useMutation({
     mutationFn: login,
-    onSuccess: () => {
+    onSuccess: (data) => {
+      const accessToken = data?.accessToken;
+      setAuthToken(accessToken); // Store the token in local storage
       navigate("/dashboard");
       addToast({
         title: "Success",
