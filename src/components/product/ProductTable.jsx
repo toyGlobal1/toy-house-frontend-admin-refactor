@@ -59,7 +59,7 @@ export function ProductTable({ products }) {
 
   return (
     <>
-      <Table isStriped aria-label="All Products Table" className="">
+      <Table isStriped aria-label="All Products Table">
         <TableHeader columns={columns}>
           {(column) => (
             <TableColumn key={column.id} align={column.id === "actions" ? "center" : "start"}>
@@ -74,7 +74,7 @@ export function ProductTable({ products }) {
                 <Link to={`/product/${product.product_id}`}>
                   <img
                     className="size-12 rounded"
-                    src={product.image_url}
+                    src={product.image_url || null}
                     alt={product.product_name}
                   />
                 </Link>

@@ -102,7 +102,6 @@ export function InventoryTable({ inventories }) {
       <Table
         isStriped
         aria-label="All Inventories Table"
-        className="max-h-[80vh]"
         classNames={{ th: "py-3 bg-secondary text-secondary-foreground" }}>
         <TableHeader columns={columns}>
           {(column) => (
@@ -130,11 +129,8 @@ export function InventoryTable({ inventories }) {
               <TableCell>{item.discount_percent}</TableCell>
               <TableCell>{item.discount_price}</TableCell>
               <TableCell>
-                <Chip
-                  variant="dot"
-                  size="sm"
-                  color={!item.mark_unavailable ? "default" : "success"}>
-                  {!item.mark_unavailable ? "Unavailable" : "Available"}
+                <Chip variant="dot" size="sm" color={item.mark_unavailable ? "default" : "success"}>
+                  {item.mark_unavailable ? "Unavailable" : "Available"}
                 </Chip>
               </TableCell>
               <TableCell>

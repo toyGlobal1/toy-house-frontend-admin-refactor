@@ -6,3 +6,4 @@ export const BRAND_KEY = "brands";
 export const COLOR_KEY = "colors";
 export const MATERIAL_KEY = "materials";
 export const REVIEW_KEY = "reviews";
+export const ORDER_KEY = "orders";

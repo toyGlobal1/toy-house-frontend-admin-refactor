@@ -31,6 +31,10 @@ export default function ProductInventoryPage() {
 
   const inventories = productInventories?.inventories || [];
 
+  if (!productData) {
+    throw new Error("Product does not exist");
+  }
+
   return (
     <div>
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">

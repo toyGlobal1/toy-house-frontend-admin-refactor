@@ -4,9 +4,10 @@ import BrandPage from "../pages/brand/BrandPage";
 import CategoryPage from "../pages/category/CategoryPage";
 import ColorPage from "../pages/color/ColorPage";
 import DashboardPage from "../pages/DashboardPage";
+import ErrorPage from "../pages/ErrorPage";
 import HomePage from "../pages/HomePage";
 import MaterialsPage from "../pages/material/MaterialsPage";
-import OrderPage from "../pages/OrderPage";
+import OrderPage from "../pages/order/OrderPage";
 import AddProductPage from "../pages/product/AddProductPage";
 import ProductInventoryPage from "../pages/product/ProductInventoryPage";
 import ProductPage from "../pages/product/ProductPage";
@@ -14,10 +15,11 @@ import ProductUpdatePage from "../pages/product/ProductUpdatePage";
 import ReviewPage from "../pages/review/ReviewPage";
 
 export const router = createBrowserRouter([
-  { path: "/", Component: HomePage },
+  { path: "/", Component: HomePage, errorElement: <ErrorPage /> },
   {
     path: "/",
     Component: DashboardLayout,
+    errorElement: <ErrorPage />,
     children: [
       { path: "/dashboard", Component: DashboardPage },
       { path: "/order", Component: OrderPage },

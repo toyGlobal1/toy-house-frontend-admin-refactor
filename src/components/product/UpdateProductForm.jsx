@@ -15,6 +15,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { useNavigate } from "react-router";
 import { BRAND_KEY, CATEGORY_KEY, MATERIAL_KEY, PRODUCT_KEY } from "../../constants/query-key";
 import {
   getProductBrands,
@@ -29,6 +30,8 @@ export const UpdateProductForm = ({ product }) => {
   const productDescriptionRef = useRef(null);
   const boxItemsRef = useRef(null);
   const highlightsRef = useRef(null);
+
+  const navigate = useNavigate();
 
   const queryClient = useQueryClient();
 
@@ -50,6 +53,7 @@ export const UpdateProductForm = ({ product }) => {
   const { mutateAsync } = useMutation({
     mutationFn: updateProduct,
     onSuccess: () => {
+      navigate(`/product/${product.product_id}`);
       queryClient.invalidateQueries([PRODUCT_KEY, product.product_id]);
       addToast({
         title: "Success",

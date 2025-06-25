@@ -69,8 +69,8 @@ function InventoryFeatureTable({ productId, onClose }) {
     });
     if (isConfirmed) {
       await setFeaturedProduct({ product_id: productId, product_inventory_id });
-      onClose();
       queryClient.invalidateQueries({ queryKey: [PRODUCT_KEY] });
+      onClose();
     }
   };
   return (
@@ -86,7 +86,10 @@ function InventoryFeatureTable({ productId, onClose }) {
           </TableColumn>
         )}
       </TableHeader>
-      <TableBody items={inventories} isLoading={isFetching} loadingContent={<Spinner />}>
+      <TableBody
+        items={inventories}
+        isLoading={isFetching}
+        loadingContent={<Spinner variant="simple" />}>
         {(item) => (
           <TableRow key={item.inventory_id}>
             <TableCell>{item.color}</TableCell>
