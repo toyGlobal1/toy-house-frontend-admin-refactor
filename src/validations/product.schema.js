@@ -10,6 +10,7 @@ export const addProductSchema = z.object({
   minimum_age_range: z.number().optional(),
   maximum_age_range: z.number().optional(),
   material_ids: z.array(z.coerce.number()).optional(),
+  dimension_types: z.array(z.enum(["BOX", "PRODUCT"])).optional(),
   dimensions: z
     .array(
       z.object({

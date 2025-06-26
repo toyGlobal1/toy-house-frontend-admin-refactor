@@ -89,18 +89,6 @@ export const AddProductForm = () => {
     name: "dimension_types",
   });
 
-  const handleDimensionTypeChange = (types) => {
-    // Update the dimension_types field
-    setValue("dimension_types", types);
-
-    // Create dimension objects based on selected types
-    const newDimensions = types.map((type) => ({
-      type,
-    }));
-
-    setValue("dimensions", newDimensions);
-  };
-
   const onSubmit = (data) => {
     const product = { product: { ...data } };
     addProductMutation(product);
@@ -347,7 +335,13 @@ export const AddProductForm = () => {
                 render={({ field }) => (
                   <CheckboxGroup
                     value={field.value || []}
-                    onValueChange={handleDimensionTypeChange}
+                    onValueChange={(types) => {
+                      field.onChange(types);
+                      const newDimensions = types.map((type) => ({
+                        type,
+                      }));
+                      setValue("dimensions", newDimensions);
+                    }}
                     orientation="horizontal"
                     className="gap-4">
                     <Checkbox value={ProductDimensionEnum.box} color="primary">

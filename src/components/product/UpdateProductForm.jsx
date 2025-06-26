@@ -3,6 +3,8 @@ import {
   Card,
   CardBody,
   CardHeader,
+  Checkbox,
+  CheckboxGroup,
   Divider,
   Input,
   NumberInput,
@@ -14,9 +16,14 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { BRAND_KEY, CATEGORY_KEY, MATERIAL_KEY, PRODUCT_KEY } from "../../constants/query-key";
+import {
+  ProductDimensionEnum,
+  ProductDimensionUnitEnum,
+  ProductWeightUnitEnum,
+} from "../../enums/product.enum";
 import {
   getProductBrands,
   getProductCategories,
@@ -73,6 +80,7 @@ export const UpdateProductForm = ({ product }) => {
   const {
     handleSubmit,
     control,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(addProductSchema),
@@ -85,6 +93,8 @@ export const UpdateProductForm = ({ product }) => {
       minimum_age_range: product.minimum_age_range,
       maximum_age_range: product.maximum_age_range,
       material_ids: product.materials.map((material) => material.material_id.toString()),
+      dimension_types: product.dimensions.map((dimension) => dimension.type),
+      dimensions: product.dimensions,
       description: product.description,
       return_and_refund_policy: product.return_and_refund_policy,
       summary: product.summary, // NOTE: Summary is Highlights in UI
@@ -92,13 +102,129 @@ export const UpdateProductForm = ({ product }) => {
     },
   });
 
+  const selectedDimensionTypes = useWatch({
+    control,
+    name: "dimension_types",
+  });
+
   const onSubmit = async (data) => {
     const payload = {
       product_id: product.product_id,
-      product: { ...data, dimensions: product.dimensions, sku: product.sku },
+      product: { ...data, sku: product.sku },
     };
     await mutateAsync(payload);
   };
+
+  const renderDimensionForm = (type, index) => (
+    <Card key={type} className="border-2 border-default-200 p-4">
+      <CardHeader className="pb-2">
+        <h4 className="text-md font-semibold capitalize">{type} Dimensions</h4>
+      </CardHeader>
+      <CardBody className="pt-0">
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            <Controller
+              control={control}
+              name={`dimensions.${index}.height`}
+              render={({ field, fieldState: { error, invalid } }) => (
+                <NumberInput
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  label="Height"
+                  placeholder="0.00"
+                  isInvalid={invalid}
+                  errorMessage={error?.message}
+                />
+              )}
+            />
+            <Controller
+              control={control}
+              name={`dimensions.${index}.width`}
+              render={({ field, fieldState: { error, invalid } }) => (
+                <NumberInput
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  label="Width"
+                  placeholder="0.00"
+                  isInvalid={invalid}
+                  errorMessage={error?.message}
+                />
+              )}
+            />
+            <Controller
+              control={control}
+              name={`dimensions.${index}.depth`}
+              render={({ field, fieldState: { error, invalid } }) => (
+                <NumberInput
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  label="Depth"
+                  placeholder="0.00"
+                  isInvalid={invalid}
+                  errorMessage={error?.message}
+                />
+              )}
+            />
+            <Controller
+              control={control}
+              name={`dimensions.${index}.weight`}
+              render={({ field, fieldState: { error, invalid } }) => (
+                <NumberInput
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  label="Weight"
+                  placeholder="0.00"
+                  isInvalid={invalid}
+                  errorMessage={error?.message}
+                />
+              )}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <Controller
+              control={control}
+              name={`dimensions.${index}.dimension_unit`}
+              render={({ field, fieldState: { error, invalid } }) => (
+                <Select
+                  {...field}
+                  defaultSelectedKeys={[field.value]}
+                  label="Dimension Unit"
+                  placeholder="Select dimension unit"
+                  isInvalid={invalid}
+                  errorMessage={error?.message}>
+                  {Object.values(ProductDimensionUnitEnum)?.map((value) => (
+                    <SelectItem key={value} value={value}>
+                      {value}
+                    </SelectItem>
+                  ))}
+                </Select>
+              )}
+            />
+            <Controller
+              control={control}
+              name={`dimensions.${index}.weight_unit`}
+              render={({ field, fieldState: { error, invalid } }) => (
+                <Select
+                  {...field}
+                  defaultSelectedKeys={[field.value]}
+                  label="Weight Unit"
+                  placeholder="Select weight unit"
+                  isInvalid={invalid}
+                  errorMessage={error?.message}>
+                  {Object.values(ProductWeightUnitEnum)?.map((value) => (
+                    <SelectItem key={value} value={value}>
+                      {value}
+                    </SelectItem>
+                  ))}
+                </Select>
+              )}
+            />
+          </div>
+        </div>
+      </CardBody>
+    </Card>
+  );
 
   return (
     <Card className="mx-auto max-w-4xl">
@@ -221,6 +347,57 @@ export const UpdateProductForm = ({ product }) => {
                 </Select>
               )}
             />
+          </div>
+
+          <div className="space-y-2">
+            <h3 className="font-semibold">Dimensions</h3>
+
+            {/* Dimension Type Selection */}
+            <div className="space-y-2">
+              <p className="text-sm text-gray-600">Select dimension types to configure:</p>
+              <Controller
+                control={control}
+                name="dimension_types"
+                render={({ field }) => (
+                  <CheckboxGroup
+                    value={field.value || []}
+                    onValueChange={(types) => {
+                      field.onChange(types);
+                      const newDimensions = types.map((type) => {
+                        const existingDimension = product.dimensions.find(
+                          (dim) => dim.type === type
+                        );
+                        if (existingDimension) {
+                          return { ...existingDimension };
+                        } else {
+                          return { type };
+                        }
+                      });
+                      setValue("dimensions", newDimensions);
+                    }}
+                    orientation="horizontal"
+                    className="gap-4">
+                    <Checkbox value={ProductDimensionEnum.box} color="primary">
+                      Box
+                    </Checkbox>
+                    <Checkbox value={ProductDimensionEnum.product} color="primary">
+                      Product
+                    </Checkbox>
+                  </CheckboxGroup>
+                )}
+              />
+            </div>
+
+            {/* Dynamic Dimension Forms */}
+            <div className="space-y-3">
+              {selectedDimensionTypes?.map((type, index) => renderDimensionForm(type, index))}
+
+              {(!selectedDimensionTypes || selectedDimensionTypes.length === 0) && (
+                <div className="rounded-lg border-2 border-dashed border-gray-300 py-8 text-center text-gray-500">
+                  <p>Select dimension types above to configure dimensions</p>
+                </div>
+              )}
+            </div>
           </div>
 
           <Divider />
