@@ -17,6 +17,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRef } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
+import { useNavigate } from "react-router";
 import { BRAND_KEY, CATEGORY_KEY, MATERIAL_KEY } from "../../constants/query-key";
 import {
   ProductDimensionEnum,
@@ -33,6 +34,7 @@ import { addProductSchema } from "../../validations/product.schema";
 import Editor from "../editor/Editor";
 
 export const AddProductForm = () => {
+  const navigate = useNavigate();
   const productDescriptionRef = useRef(null);
   const boxItemsRef = useRef(null);
   const highlightsRef = useRef(null);
@@ -52,14 +54,15 @@ export const AddProductForm = () => {
     queryFn: getProductMaterials,
   });
 
-  const { mutate: addProductMutation } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationFn: addProduct,
-    onSuccess: () => {
+    onSuccess: (data) => {
       addToast({
         title: "Success",
         description: "Product added successfully",
         color: "success",
       });
+      navigate(`/product/${data.product.product_id}`);
     },
     onError: () => {
       addToast({
@@ -89,9 +92,9 @@ export const AddProductForm = () => {
     name: "dimension_types",
   });
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     const product = { product: { ...data } };
-    addProductMutation(product);
+    await mutateAsync(product);
   };
 
   const renderDimensionForm = (type, index) => (
