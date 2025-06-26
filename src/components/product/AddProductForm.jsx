@@ -372,22 +372,22 @@ export const AddProductForm = () => {
           {/* Additional Information */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Additional Information</h3>
-            <Controller
-              control={control}
-              name="number_of_pieces"
-              render={({ field, fieldState: { error, invalid } }) => (
-                <NumberInput
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  label="Number of Pieces"
-                  placeholder="Enter number of pieces"
-                  isInvalid={invalid}
-                  errorMessage={error?.message}
-                />
-              )}
-            />
             <div className="space-y-4">
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <Controller
+                  control={control}
+                  name="number_of_pieces"
+                  render={({ field, fieldState: { error, invalid } }) => (
+                    <NumberInput
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      label="Number of Pieces"
+                      placeholder="Enter number of pieces"
+                      isInvalid={invalid}
+                      errorMessage={error?.message}
+                    />
+                  )}
+                />
                 <Controller
                   control={control}
                   name="minimum_age_range"
