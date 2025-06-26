@@ -7,7 +7,7 @@ import {
   Tooltip,
   useDisclosure,
 } from "@heroui/react";
-import { EyeIcon } from "lucide-react";
+import { FaYoutube } from "react-icons/fa6";
 import { YouTubeEmbed } from "../ui/YouTubeEmbed";
 
 export function InventoryVideoModal({ videos }) {
@@ -17,7 +17,7 @@ export function InventoryVideoModal({ videos }) {
     <>
       <Tooltip color="foreground" size="sm" content="Show videos" className="rounded-md">
         <Button isIconOnly size="sm" onPress={onOpen}>
-          <EyeIcon className="size-4" />
+          <FaYoutube className="size-4" />
         </Button>
       </Tooltip>
       <Modal size="xl" isOpen={isOpen} onOpenChange={onOpenChange}>
