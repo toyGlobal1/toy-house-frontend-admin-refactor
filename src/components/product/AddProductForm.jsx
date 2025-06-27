@@ -17,6 +17,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRef } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
+import { useNavigate } from "react-router";
 import { BRAND_KEY, CATEGORY_KEY, MATERIAL_KEY } from "../../constants/query-key";
 import {
   ProductDimensionEnum,
@@ -33,6 +34,7 @@ import { addProductSchema } from "../../validations/product.schema";
 import Editor from "../editor/Editor";
 
 export const AddProductForm = () => {
+  const navigate = useNavigate();
   const productDescriptionRef = useRef(null);
   const boxItemsRef = useRef(null);
   const highlightsRef = useRef(null);
@@ -52,14 +54,15 @@ export const AddProductForm = () => {
     queryFn: getProductMaterials,
   });
 
-  const { mutate: addProductMutation } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationFn: addProduct,
-    onSuccess: () => {
+    onSuccess: (data) => {
       addToast({
         title: "Success",
         description: "Product added successfully",
         color: "success",
       });
+      navigate(`/product/${data.product.product_id}`);
     },
     onError: () => {
       addToast({
@@ -89,21 +92,9 @@ export const AddProductForm = () => {
     name: "dimension_types",
   });
 
-  const handleDimensionTypeChange = (types) => {
-    // Update the dimension_types field
-    setValue("dimension_types", types);
-
-    // Create dimension objects based on selected types
-    const newDimensions = types.map((type) => ({
-      type,
-    }));
-
-    setValue("dimensions", newDimensions);
-  };
-
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     const product = { product: { ...data } };
-    addProductMutation(product);
+    await mutateAsync(product);
   };
 
   const renderDimensionForm = (type, index) => (
@@ -347,7 +338,13 @@ export const AddProductForm = () => {
                 render={({ field }) => (
                   <CheckboxGroup
                     value={field.value || []}
-                    onValueChange={handleDimensionTypeChange}
+                    onValueChange={(types) => {
+                      field.onChange(types);
+                      const newDimensions = types.map((type) => ({
+                        type,
+                      }));
+                      setValue("dimensions", newDimensions);
+                    }}
                     orientation="horizontal"
                     className="gap-4">
                     <Checkbox value={ProductDimensionEnum.box} color="primary">
@@ -378,22 +375,22 @@ export const AddProductForm = () => {
           {/* Additional Information */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Additional Information</h3>
-            <Controller
-              control={control}
-              name="number_of_pieces"
-              render={({ field, fieldState: { error, invalid } }) => (
-                <NumberInput
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  label="Number of Pieces"
-                  placeholder="Enter number of pieces"
-                  isInvalid={invalid}
-                  errorMessage={error?.message}
-                />
-              )}
-            />
             <div className="space-y-4">
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <Controller
+                  control={control}
+                  name="number_of_pieces"
+                  render={({ field, fieldState: { error, invalid } }) => (
+                    <NumberInput
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      label="Number of Pieces"
+                      placeholder="Enter number of pieces"
+                      isInvalid={invalid}
+                      errorMessage={error?.message}
+                    />
+                  )}
+                />
                 <Controller
                   control={control}
                   name="minimum_age_range"

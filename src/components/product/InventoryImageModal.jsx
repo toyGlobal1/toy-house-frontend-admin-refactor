@@ -6,11 +6,12 @@ import {
   ModalContent,
   ModalFooter,
   ModalHeader,
+  Tooltip,
   useDisclosure,
 } from "@heroui/react";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
-import { EyeIcon } from "lucide-react";
 import { useState } from "react";
+import { FaImage } from "react-icons/fa6";
 import Swal from "sweetalert2";
 import { PRODUCT_INVENTORY_IMAGES_KEY } from "../../constants/query-key";
 import { uploadImageToIMG_BB } from "../../service/image.service";
@@ -110,9 +111,11 @@ export function InventoryImageModal({ inventoryId }) {
 
   return (
     <>
-      <Button isIconOnly size="sm" onPress={onOpen}>
-        <EyeIcon className="size-4" />
-      </Button>
+      <Tooltip color="foreground" size="sm" content="Show images" className="rounded-md">
+        <Button isIconOnly size="sm" onPress={onOpen}>
+          <FaImage className="size-4" />
+        </Button>
+      </Tooltip>
       <Modal size="xl" isOpen={isOpen} onOpenChange={onOpenChange}>
         <ModalContent>
           <ModalHeader className="flex flex-col gap-1 text-center">Product Images</ModalHeader>
