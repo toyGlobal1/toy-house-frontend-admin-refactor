@@ -105,7 +105,7 @@ function OrderCard({ order }) {
               size="sm"
               color="success"
               className="text-white"
-              isDisabled={order.order_status === OrderStatusEnum.confirmed}
+              isDisabled={order.order_status !== OrderStatusEnum.pending}
               onPress={() => handleChangeOrderStatus(OrderStatusEnum.confirmed)}>
               Confirm Order
             </Button>
