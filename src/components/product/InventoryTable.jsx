@@ -117,7 +117,7 @@ export function InventoryTable({ inventories }) {
                 <InventoryImageModal inventoryId={item.inventory_id} />
               </TableCell>
               <TableCell className="max-w-sm">
-                <InventoryVideoModal videos={item.videos} />
+                <InventoryVideoModal inventoryId={item.inventory_id} />
               </TableCell>
               <TableCell>{item.color}</TableCell>
               <TableCell>{item.quantity}</TableCell>
