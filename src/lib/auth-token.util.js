@@ -1,17 +1,28 @@
+import { jwtDecode } from "jwt-decode";
+
 export const getAuthToken = () => {
   const token = localStorage.getItem("accessToken");
-  if (!token) {
+  try {
+    if (token) {
+      const decoded = jwtDecode(token);
+      const expirationTime = decoded?.exp * 1000; // Convert to milliseconds
+      const isExpired = Date.now() >= expirationTime;
+      if (isExpired) {
+        localStorage.removeItem("accessToken");
+        return null;
+      }
+      return token;
+    }
+    return null;
+  } catch (error) {
+    console.error("Invalid token format", error);
+    localStorage.removeItem("accessToken");
     return null;
   }
-  return token;
 };
 
 export const setAuthToken = (token) => {
-  if (token) {
-    localStorage.setItem("accessToken", token);
-  } else {
-    localStorage.removeItem("accessToken");
-  }
+  localStorage.setItem("accessToken", token);
 };
 
 export const removeAuthToken = () => {

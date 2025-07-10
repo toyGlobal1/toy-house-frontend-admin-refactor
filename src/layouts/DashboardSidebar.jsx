@@ -6,6 +6,7 @@ import { MdDashboard, MdRateReview } from "react-icons/md";
 import { TbBrandCtemplar } from "react-icons/tb";
 import { NavLink, useNavigate } from "react-router";
 import Logo from "../components/Logo";
+import { useAuth } from "../hooks/useAuth";
 import { removeAuthToken } from "../lib/auth-token.util";
 
 const DASHBOARD_NAV_ITEMS = [
@@ -21,10 +22,12 @@ const DASHBOARD_NAV_ITEMS = [
 
 export default function DashboardSidebar() {
   const navigate = useNavigate();
+  const { setIsAuthenticated } = useAuth();
 
   const handleLogout = () => {
     removeAuthToken();
-    navigate("/");
+    setIsAuthenticated(false);
+    navigate("/login");
   };
 
   return (

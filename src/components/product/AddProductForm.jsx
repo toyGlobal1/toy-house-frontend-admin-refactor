@@ -1,4 +1,6 @@
 import {
+  Autocomplete,
+  AutocompleteItem,
   Button,
   Card,
   CardBody,
@@ -220,10 +222,10 @@ export const AddProductForm = () => {
                 control={control}
                 name="category_id"
                 render={({ field, fieldState: { error, invalid } }) => (
-                  <Select
-                    value={field.value}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
-                    items={categoriesData?.categories || []}
+                  <Autocomplete
+                    selectedKey={field.value?.toString()}
+                    onSelectionChange={(value) => field.onChange(Number(value))}
+                    defaultItems={categoriesData?.categories || []}
                     isLoading={isCategoriesFetching}
                     label="Category"
                     placeholder="Select category"
@@ -231,27 +233,31 @@ export const AddProductForm = () => {
                     errorMessage={error?.message}
                     isRequired>
                     {(category) => (
-                      <SelectItem key={category.category_id}>{category.name}</SelectItem>
+                      <AutocompleteItem key={category.category_id}>
+                        {category.name}
+                      </AutocompleteItem>
                     )}
-                  </Select>
+                  </Autocomplete>
                 )}
               />
               <Controller
                 control={control}
                 name="brand_id"
                 render={({ field, fieldState: { error, invalid } }) => (
-                  <Select
-                    value={field.value}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
-                    items={brandsData?.brands || []}
+                  <Autocomplete
+                    selectedKey={field.value?.toString()}
+                    onSelectionChange={(value) => field.onChange(Number(value))}
+                    defaultItems={brandsData?.brands || []}
                     isLoading={isBrandsFetching}
                     label="Brand"
                     placeholder="Select brand"
                     isInvalid={invalid}
                     errorMessage={error?.message}
                     isRequired>
-                    {(brand) => <SelectItem key={brand.brand_id}>{brand.name}</SelectItem>}
-                  </Select>
+                    {(brand) => (
+                      <AutocompleteItem key={brand.brand_id}>{brand.name}</AutocompleteItem>
+                    )}
+                  </Autocomplete>
                 )}
               />
             </div>
