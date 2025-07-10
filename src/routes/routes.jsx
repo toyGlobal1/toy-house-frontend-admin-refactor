@@ -13,25 +13,37 @@ import ProductInventoryPage from "../pages/product/ProductInventoryPage";
 import ProductPage from "../pages/product/ProductPage";
 import ProductUpdatePage from "../pages/product/ProductUpdatePage";
 import ReviewPage from "../pages/review/ReviewPage";
+import AuthRoute from "./AuthRoute";
+import PrivateRoute from "./PrivateRoute";
 
 export const router = createBrowserRouter([
-  { path: "/", Component: HomePage, errorElement: <ErrorPage /> },
   {
     path: "/",
-    Component: DashboardLayout,
-    errorElement: <ErrorPage />,
+    element: <AuthRoute />,
+    children: [{ path: "/", element: <HomePage />, errorElement: <ErrorPage /> }],
+  },
+  {
+    path: "/",
+    element: <PrivateRoute />,
     children: [
-      { path: "/dashboard", Component: DashboardPage },
-      { path: "/order", Component: OrderPage },
-      { path: "/product", Component: ProductPage },
-      { path: "/product/add", Component: AddProductPage },
-      { path: "/product/:id", Component: ProductInventoryPage },
-      { path: "/product/:id/update", Component: ProductUpdatePage },
-      { path: "/category", Component: CategoryPage },
-      { path: "/brand", Component: BrandPage },
-      { path: "/color", Component: ColorPage },
-      { path: "/material", Component: MaterialsPage },
-      { path: "/review", Component: ReviewPage },
+      {
+        path: "/",
+        element: <DashboardLayout />,
+        errorElement: <ErrorPage />,
+        children: [
+          { path: "/dashboard", element: <DashboardPage /> },
+          { path: "/order", element: <OrderPage /> },
+          { path: "/product", element: <ProductPage /> },
+          { path: "/product/add", element: <AddProductPage /> },
+          { path: "/product/:id", element: <ProductInventoryPage /> },
+          { path: "/product/:id/update", element: <ProductUpdatePage /> },
+          { path: "/category", element: <CategoryPage /> },
+          { path: "/brand", element: <BrandPage /> },
+          { path: "/color", element: <ColorPage /> },
+          { path: "/material", element: <MaterialsPage /> },
+          { path: "/review", element: <ReviewPage /> },
+        ],
+      },
     ],
   },
 ]);
