@@ -82,6 +82,20 @@ export const deleteProductInventoryImage = async (imageId) => {
   );
 };
 
+/* Product Inventory Video */
+
+export const getProductInventoryVideos = async (inventoryId) => {
+  return await axiosInstance.get(`/api/v1/admin/videos/all/${inventoryId}?request-id=1234`);
+};
+
+export const addProductInventoryVideo = async (data) => {
+  return await axiosInstance.post(`/api/v1/admin/videos/list?request-id=1234`, data);
+};
+
+export const deleteProductInventoryVideo = async (videoId) => {
+  return await axiosInstance.delete(`/api/v1/admin/videos/${videoId}?request-id=1234`);
+};
+
 export const getProductCategories = async () => {
   return await axiosInstance.get(
     "api/v1/open/categories/get/all?page=0&size=1000&request-id=12341234"

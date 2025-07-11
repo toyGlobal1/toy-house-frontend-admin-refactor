@@ -2,7 +2,7 @@ import { AlertCircleIcon, ImageUpIcon, XIcon } from "lucide-react";
 import { useEffect } from "react";
 import { useFileUpload } from "../../hooks/use-file-upload";
 
-export function FileUpload({ onFileChange }) {
+export function FileUpload({ initialFile, onFileChange }) {
   const maxSizeMB = 5;
   const maxSize = maxSizeMB * 1024 * 1024; // 5MB default
 
@@ -18,6 +18,7 @@ export function FileUpload({ onFileChange }) {
       getInputProps,
     },
   ] = useFileUpload({
+    initialFiles: initialFile ? [initialFile] : [],
     accept: "image/*",
     maxSize,
   });

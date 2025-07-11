@@ -53,3 +53,7 @@ export const addInventoryZodSchema = z.object({
   is_featured: z.boolean().optional().default(false),
   mark_unavailable: z.boolean().optional().default(false),
 });
+
+export const addInventoryVideoSchema = z.object({
+  product_videos: z.array(z.object({ video_url: z.string().min(1, "Video URL is required") })),
+});
