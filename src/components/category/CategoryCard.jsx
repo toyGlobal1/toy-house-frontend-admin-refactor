@@ -1,9 +1,10 @@
-import { Button, Card, CardBody, CardHeader } from "@heroui/react";
+import { Button, Card, CardBody, CardHeader, Tooltip } from "@heroui/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { TrashIcon } from "lucide-react";
 import Swal from "sweetalert2";
 import { CATEGORY_KEY } from "../../constants/query-key";
 import { deleteCategory } from "../../service/category.service";
+import { UpdateCategoryModal } from "./UpdateCategoryModal";
 
 export function CategoryCard({ category }) {
   const queryClient = useQueryClient();
@@ -25,9 +26,14 @@ export function CategoryCard({ category }) {
     <Card className="divide-y-1">
       <CardHeader className="justify-between font-medium">
         {category.name}
-        <Button isIconOnly size="sm" color="danger" variant="flat" onPress={handleDelete}>
-          <TrashIcon className="size-3.5" />
-        </Button>
+        <div className="flex items-center gap-2">
+          <UpdateCategoryModal category={category} />
+          <Tooltip content="Delete" placement="top" radius="sm" color="foreground">
+            <Button isIconOnly size="sm" color="danger" variant="flat" onPress={handleDelete}>
+              <TrashIcon className="size-3.5" />
+            </Button>
+          </Tooltip>
+        </div>
       </CardHeader>
       <CardBody>
         <img
