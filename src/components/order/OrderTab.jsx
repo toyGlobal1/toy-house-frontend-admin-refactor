@@ -23,7 +23,9 @@ import { ExportOrderPdf } from "./ExportOrderPdf";
 const tabs = [
   { id: "ALL", title: "All" },
   { id: OrderStatusEnum.pending, title: "Pending" },
+  { id: OrderStatusEnum.onHold, title: "On Hold" },
   { id: OrderStatusEnum.confirmed, title: "Confirmed" },
+  { id: OrderStatusEnum.processing, title: "Processing" },
   { id: OrderStatusEnum.shipped, title: "Shipped" },
   { id: OrderStatusEnum.delivered, title: "Delivered" },
   { id: OrderStatusEnum.cancelled, title: "Cancelled" },
@@ -34,6 +36,8 @@ const tabs = [
 
 const dropdownItems = [
   { id: OrderStatusEnum.cancelled, title: "Cancelled" },
+  { id: OrderStatusEnum.onHold, title: "On Hold" },
+  { id: OrderStatusEnum.processing, title: "Processing" },
   { id: OrderStatusEnum.shipped, title: "Shipped" },
   { id: OrderStatusEnum.delivered, title: "Delivered" },
   { id: OrderStatusEnum.returnedRequested, title: "Return Requested" },
@@ -59,9 +63,11 @@ export function OrderTab({ orders }) {
       {tabs.map((tab) => (
         <Tab key={tab.id} title={tab.title}>
           <div className="flex flex-col gap-3">
-            {filteredOrders.map((order) => (
-              <OrderCard key={order.order_id} order={order} />
-            ))}
+            {filteredOrders.length ? (
+              filteredOrders.map((order) => <OrderCard key={order.order_id} order={order} />)
+            ) : (
+              <p className="mt-5 text-center text-gray-500">No orders found</p>
+            )}
           </div>
         </Tab>
       ))}
