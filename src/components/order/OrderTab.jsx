@@ -9,12 +9,15 @@ import {
   DropdownMenu,
   DropdownSection,
   DropdownTrigger,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
   Tab,
   Tabs,
 } from "@heroui/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { LuChevronDown } from "react-icons/lu";
+import { LuArrowRight, LuChevronDown } from "react-icons/lu";
 import { ORDER_KEY } from "../../constants/query-key";
 import { OrderStatusEnum } from "../../enums/order.enum";
 import { updateOrderStatus } from "../../service/order.service";
@@ -23,7 +26,9 @@ import { ExportOrderPdf } from "./ExportOrderPdf";
 const tabs = [
   { id: "ALL", title: "All" },
   { id: OrderStatusEnum.pending, title: "Pending" },
+  { id: OrderStatusEnum.onHold, title: "On Hold" },
   { id: OrderStatusEnum.confirmed, title: "Confirmed" },
+  { id: OrderStatusEnum.processing, title: "Processing" },
   { id: OrderStatusEnum.shipped, title: "Shipped" },
   { id: OrderStatusEnum.delivered, title: "Delivered" },
   { id: OrderStatusEnum.cancelled, title: "Cancelled" },
@@ -34,6 +39,8 @@ const tabs = [
 
 const dropdownItems = [
   { id: OrderStatusEnum.cancelled, title: "Cancelled" },
+  { id: OrderStatusEnum.onHold, title: "On Hold" },
+  { id: OrderStatusEnum.processing, title: "Processing" },
   { id: OrderStatusEnum.shipped, title: "Shipped" },
   { id: OrderStatusEnum.delivered, title: "Delivered" },
   { id: OrderStatusEnum.returnedRequested, title: "Return Requested" },
@@ -59,9 +66,11 @@ export function OrderTab({ orders }) {
       {tabs.map((tab) => (
         <Tab key={tab.id} title={tab.title}>
           <div className="flex flex-col gap-3">
-            {filteredOrders.map((order) => (
-              <OrderCard key={order.order_id} order={order} />
-            ))}
+            {filteredOrders.length ? (
+              filteredOrders.map((order) => <OrderCard key={order.order_id} order={order} />)
+            ) : (
+              <p className="mt-5 text-center text-gray-500">No orders found</p>
+            )}
           </div>
         </Tab>
       ))}
@@ -109,7 +118,10 @@ function OrderCard({ order }) {
               onPress={() => handleChangeOrderStatus(OrderStatusEnum.confirmed)}>
               Confirm Order
             </Button>
-            <OrderStatusDropdown onOrderStatusChange={handleChangeOrderStatus} />
+            <OrderStatusDropdown
+              status={order.order_status}
+              onOrderStatusChange={handleChangeOrderStatus}
+            />
           </div>
         </div>
         <Divider />
@@ -139,17 +151,60 @@ function OrderCard({ order }) {
           ))}
         </div>
         <Divider />
-        <div className="mt-2">
+        <div className="mt-2 flex items-center gap-5">
           <p className="text-xs font-medium text-gray-500">
             Date: {new Date(order.order_date).toLocaleString()}
           </p>
+          <CustomerInfoPopover
+            name={order.name}
+            phone_number={order.phone_number}
+            email={order.email}
+            delivery_options={order.delivery_options}
+            address={order.address}
+          />
         </div>
       </CardBody>
     </Card>
   );
 }
 
-function OrderStatusDropdown({ onOrderStatusChange }) {
+function OrderStatusDropdown({ status, onOrderStatusChange }) {
+  let disabledKeys = [];
+  const orderStatusValues = Object.values(OrderStatusEnum);
+
+  if (status === OrderStatusEnum.pending) {
+    disabledKeys = [OrderStatusEnum.onHold, OrderStatusEnum.confirmed, OrderStatusEnum.cancelled];
+  } else if (
+    status === OrderStatusEnum.cancelled ||
+    status === OrderStatusEnum.failed ||
+    status === OrderStatusEnum.refunded
+  ) {
+    disabledKeys = orderStatusValues;
+  } else if (status === OrderStatusEnum.confirmed) {
+    disabledKeys = orderStatusValues.filter(
+      (item) =>
+        item !== OrderStatusEnum.shipped &&
+        item !== OrderStatusEnum.cancelled &&
+        item !== OrderStatusEnum.processing
+    );
+  } else if (status === OrderStatusEnum.onHold) {
+    disabledKeys = orderStatusValues.filter(
+      (item) => item !== OrderStatusEnum.confirmed && item !== OrderStatusEnum.cancelled
+    );
+  } else if (status === OrderStatusEnum.processing) {
+    disabledKeys = orderStatusValues.filter(
+      (item) => item !== OrderStatusEnum.shipped && item !== OrderStatusEnum.cancelled
+    );
+  } else if (status === OrderStatusEnum.shipped) {
+    disabledKeys = orderStatusValues.filter((item) => item !== OrderStatusEnum.delivered);
+  } else if (status === OrderStatusEnum.delivered) {
+    disabledKeys = orderStatusValues.filter((item) => item !== OrderStatusEnum.returnedRequested);
+  } else if (status === OrderStatusEnum.returnedRequested) {
+    disabledKeys = orderStatusValues.filter((item) => item !== OrderStatusEnum.returned);
+  } else if (status === OrderStatusEnum.returned) {
+    disabledKeys = orderStatusValues.filter((item) => item !== OrderStatusEnum.refunded);
+  }
+
   return (
     <Dropdown placement="bottom-end">
       <DropdownTrigger>
@@ -160,6 +215,7 @@ function OrderStatusDropdown({ onOrderStatusChange }) {
       <DropdownMenu
         aria-label="Order Status Dropdown"
         selectionMode="single"
+        disabledKeys={disabledKeys}
         onSelectionChange={(set) => {
           const value = Array.from(set)[0];
           onOrderStatusChange(value);
@@ -169,5 +225,39 @@ function OrderStatusDropdown({ onOrderStatusChange }) {
         </DropdownSection>
       </DropdownMenu>
     </Dropdown>
+  );
+}
+
+function CustomerInfoPopover({ name, phone_number, email, delivery_options, address }) {
+  return (
+    <Popover placement="right" showArrow={true}>
+      <PopoverTrigger>
+        <Button size="sm">
+          View customer info <LuArrowRight />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="bg-neutral-200">
+        <div className="p-2">
+          <p className="mb-2 text-center text-base font-semibold">Customer Info</p>
+          <div className="space-y-1 text-sm [&_strong]:inline-block [&_strong]:min-w-[120px] [&_strong]:font-medium">
+            <div>
+              <strong>Name:</strong> {name}
+            </div>
+            <div>
+              <strong>Phone:</strong> {phone_number}
+            </div>
+            <div>
+              <strong>Email:</strong> {email}
+            </div>
+            <div className="font-medium">
+              <strong>Delivery Options:</strong> {delivery_options}
+            </div>
+            <div>
+              <strong>Address:</strong> {address}
+            </div>
+          </div>
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }

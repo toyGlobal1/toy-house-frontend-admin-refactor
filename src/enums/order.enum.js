@@ -1,6 +1,8 @@
 export const OrderStatusEnum = {
   pending: "PENDING",
+  onHold: "ON_HOLD",
   confirmed: "CONFIRMED",
+  processing: "PROCESSING",
   shipped: "SHIPPED",
   delivered: "DELIVERED",
   cancelled: "CANCELLED",
