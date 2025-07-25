@@ -2,24 +2,24 @@ import { axiosInstance } from "../lib/axios.config";
 
 export const getAllProducts = async () => {
   return await axiosInstance.get(
-    "/api/v1/open/products/get/products/for-dashboard?page-number=0&page-size=1000&request-id=1212"
+    "/api/v1/admin/products/get/products/for-dashboard?page-number=0&page-size=1000&request-id=1212"
   );
 };
 
 export const deleteProduct = async (productId) => {
-  return await axiosInstance.delete(`/api/v1/open/products/delete/${productId}?request-id=1234`);
+  return await axiosInstance.delete(`/api/v1/admin/products/delete/${productId}?request-id=1234`);
 };
 
 export const changeProductStatus = async (data) => {
   return await axiosInstance.put(
-    `/api/v1/open/products/change/availability/status?request-id=1234`,
+    `/api/v1/admin/products/change/availability/status?request-id=1234`,
     data
   );
 };
 
 export const setFeaturedProduct = async (data) => {
   return await axiosInstance.put(
-    `/api/v1/open/products/set/featured-product?request-id=1234`,
+    `/api/v1/admin/products/set/featured-product?request-id=1234`,
     data
   );
 };
@@ -32,7 +32,7 @@ export const getProductInventories = async (productId) => {
 
 export const getProductDetails = async (productId) => {
   return await axiosInstance.get(
-    `/api/v1/open/products/get/product?product-id=${productId}&request-id=1233`
+    `/api/v1/admin/products/get/product?product-id=${productId}&request-id=1233`
   );
 };
 
@@ -98,12 +98,14 @@ export const deleteProductInventoryVideo = async (videoId) => {
 
 export const getProductCategories = async () => {
   return await axiosInstance.get(
-    "api/v1/open/categories/get/all?page=0&size=1000&request-id=12341234"
+    "api/v1/admin/categories/get/all?page=0&size=1000&request-id=12341234"
   );
 };
 
 export const getProductBrands = async () => {
-  return await axiosInstance.get("api/v1/open/brands/get/all?page=0&size=1000&request-id=12341234");
+  return await axiosInstance.get(
+    "api/v1/admin/brands/get/all?page=0&size=1000&request-id=12341234"
+  );
 };
 
 export const getProductMaterials = async () => {
@@ -113,9 +115,9 @@ export const getProductMaterials = async () => {
 };
 
 export const addProduct = async (data) => {
-  return await axiosInstance.post("/api/v1/open/products/add/product?request-id=1234", data);
+  return await axiosInstance.post("/api/v1/admin/products/add/product?request-id=1234", data);
 };
 
 export const updateProduct = async (data) => {
-  return await axiosInstance.put("/api/v1/open/products/update?request-id=1234", data);
+  return await axiosInstance.put("/api/v1/admin/products/update?request-id=1234", data);
 };
