@@ -173,7 +173,12 @@ function OrderStatusDropdown({ status, onOrderStatusChange }) {
   const orderStatusValues = Object.values(OrderStatusEnum);
 
   if (status === OrderStatusEnum.pending) {
-    disabledKeys = [OrderStatusEnum.onHold, OrderStatusEnum.confirmed, OrderStatusEnum.cancelled];
+    disabledKeys = orderStatusValues.filter(
+      (item) =>
+        item !== OrderStatusEnum.confirmed &&
+        item !== OrderStatusEnum.cancelled &&
+        item !== OrderStatusEnum.onHold
+    );
   } else if (
     status === OrderStatusEnum.cancelled ||
     status === OrderStatusEnum.failed ||
