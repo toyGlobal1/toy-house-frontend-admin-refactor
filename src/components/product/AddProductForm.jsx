@@ -26,12 +26,9 @@ import {
   ProductDimensionUnitEnum,
   ProductWeightUnitEnum,
 } from "../../enums/product.enum";
-import {
-  addProduct,
-  getProductBrands,
-  getProductCategories,
-  getProductMaterials,
-} from "../../service/product.service";
+import { getAllBrands } from "../../service/brand.service";
+import { getAllCategories } from "../../service/category.service";
+import { addProduct, getProductMaterials } from "../../service/product.service";
 import { addProductSchema } from "../../validations/product.schema";
 import Editor from "../editor/Editor";
 
@@ -43,12 +40,12 @@ export const AddProductForm = () => {
 
   const { data: categoriesData, isFetching: isCategoriesFetching } = useQuery({
     queryKey: [CATEGORY_KEY],
-    queryFn: getProductCategories,
+    queryFn: getAllCategories,
   });
 
   const { data: brandsData, isFetching: isBrandsFetching } = useQuery({
     queryKey: [BRAND_KEY],
-    queryFn: getProductBrands,
+    queryFn: getAllBrands,
   });
 
   const { data: materialsData, isFetching: isMaterialsFetching } = useQuery({
