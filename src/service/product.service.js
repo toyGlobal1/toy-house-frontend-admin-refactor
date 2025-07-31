@@ -32,7 +32,7 @@ export const getProductInventories = async (productId) => {
 
 export const getProductDetails = async (productId) => {
   return await axiosInstance.get(
-    `/api/v1/admin/products/get/product?product-id=${productId}&request-id=1233`
+    `/api/v1/open/products/get/product?product-id=${productId}&request-id=1233`
   );
 };
 
