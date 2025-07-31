@@ -9,10 +9,10 @@ const COMPANY_DETAILS = {
   email: "kuswarkhan2018@gmail.com",
   phone_number: "01626809609",
   address: "Toy House, Level-1, A1, 37C",
-  deliveryFee: 120,
 };
 
 export function ExportOrderPdf({ order }) {
+  const deliveryFee = order.delivery_options === "INSIDE_DHAKA" ? 60 : 120;
   const handleExportPdf = () => {
     const orderItems = order.order_items || [];
     if (!orderItems.length) {
@@ -122,12 +122,12 @@ export function ExportOrderPdf({ order }) {
     doc.text(`${itemsTotal.toFixed(2)} BDT`, 180, finalY, { align: "right" });
 
     doc.text("Delivery Fee:", 14, finalY + 10);
-    doc.text(`${COMPANY_DETAILS.deliveryFee.toFixed(2)} BDT`, 180, finalY + 10, {
+    doc.text(`${deliveryFee.toFixed(2)} BDT`, 180, finalY + 10, {
       align: "right",
     });
 
     doc.text("Grand Total:", 14, finalY + 20);
-    doc.text(`${(itemsTotal + COMPANY_DETAILS.deliveryFee).toFixed(2)} BDT`, 180, finalY + 20, {
+    doc.text(`${(itemsTotal + deliveryFee).toFixed(2)} BDT`, 180, finalY + 20, {
       align: "right",
     });
 
